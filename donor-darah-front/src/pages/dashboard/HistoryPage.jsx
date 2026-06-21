@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 
-// --- Ikon-Ikon SVG Pendukung Premium ---
 const SearchIcon2 = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2.5"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>;
 const FilterIcon2 = () => <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2.5"><line x1="4" y1="6" x2="20" y2="6" /><line x1="8" y1="12" x2="16" y2="12" /></svg>;
 
@@ -11,18 +10,15 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const userId = localStorage.getItem("user_id");
 
-  // 🚀 AMBIL & GABUNGKAN DATA DARI DUA ROUTER BACKEND SEKALIGUS
   useEffect(() => {
     if (userId) {
       setLoading(true);
       
-      // Menembak rute permohonan darah dan rute respon donor secara paralel
       Promise.all([
         api.get(`/donor-requests/my-requests/${userId}`),
         api.get(`/request-responses/my-responses/${userId}`)
       ])
         .then(([requestsRes, responsesRes]) => {
-          // 1. Normalisasi Data Permintaan (Requests)
           const normalizedRequests = (requestsRes.data || []).map((req) => ({
             id: req.id,
             type: "Permintaan",
@@ -34,20 +30,21 @@ export default function HistoryPage() {
             raw_date: req.created_at || ""
           }));
 
-          // 2. Normalisasi Data Respon Donor (Responses)
           const normalizedResponses = (responsesRes.data || []).map((res) => ({
             id: res.id,
             type: "Respon Donor",
             blood: res.request?.blood_type || res.blood_type || "-",
-            location: res.request?.hospital?.name || res.hospital_name || "Rumah Sakit",
+            location: res.request?.hospital?.name || "Rumah Sakit",
             status: res.status === "pending" ? "Menunggu" : res.status === "accepted" ? "Selesai" : "Dibatalkan",
             statusColor: res.status === "pending" ? "bg-amber-50 text-amber-700 border border-amber-100" : res.status === "accepted" ? "bg-blue-50 text-blue-600 border border-blue-100" : "bg-red-50 text-red-600 border border-red-100",
             icon: "🩸",
-            raw_date: res.created_at || ""
+            raw_date: res.created_at || res.request?.created_at || ""
           }));
-
-          // 3. Gabungkan kedua rumpun data dan urutkan berdasarkan ID/waktu terbaru
-          const combined = [...normalizedRequests, ...normalizedResponses].sort((a, b) => b.id - a.id);
+          const combined = [...normalizedRequests, ...normalizedResponses].sort((a, b) => {
+          const dateA = a.raw_date ? new Date(a.raw_date).getTime() : 0;
+          const dateB = b.raw_date ? new Date(b.raw_date).getTime() : 0;
+            return dateB - dateA || b.id - a.id;
+          });
           
           setActivities(combined);
           setLoading(false);
@@ -59,7 +56,6 @@ export default function HistoryPage() {
     }
   }, [userId]);
 
-  // 🔍 LOGIKA FILTER: Menyaring gabungan data secara real-time lewat kolom search
   const filteredActivities = activities.filter((item) => {
     const query = searchQuery.toLowerCase();
     return (
@@ -70,7 +66,6 @@ export default function HistoryPage() {
     );
   });
 
-  // 📊 HITUNG STATISTIK OTOMATIS BERDASARKAN HASIL DATA REAL
   const totalRequests = activities.filter((a) => a.type === "Permintaan").length;
   const totalResponses = activities.filter((a) => a.type === "Respon Donor").length;
   const totalCompleted = activities.filter((a) => a.status === "Selesai").length;
@@ -85,19 +80,13 @@ export default function HistoryPage() {
 
   return (
     <div className="flex-1 p-8 overflow-y-auto bg-[#FAF8F5] font-sans antialiased">
-      
-      {/* 🔴 BAGIAN 1: HEADER HALAMAN */}
       <div className="mb-6">
         <h2 className="text-2xl font-black text-gray-900 tracking-tight">Riwayat Aktivitas</h2>
         <p className="text-gray-400 text-xs mt-1">Pantau kontribusi donor darah serta manajemen seluruh permohonan yang pernah Anda buat.</p>
       </div>
 
-      
-
-      {/* 🔴 BAGIAN 3: BOX UTAMA TABEL TRANSAKSI */}
       <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
         
-        {/* Header Kontrol Internal Tabel */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 border-b border-gray-50 gap-4">
           <h3 className="font-extrabold text-gray-900 text-sm tracking-tight">Daftar Aktivitas</h3>
           
@@ -118,7 +107,6 @@ export default function HistoryPage() {
           </div>
         </div>
 
-        {/* Render Tabel Data Hasil Gabungan */}
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-medium text-gray-500">
             <thead>
@@ -126,13 +114,14 @@ export default function HistoryPage() {
                 <th className="px-6 py-4">AKTIVITAS</th>
                 <th className="px-6 py-4">GOLONGAN</th>
                 <th className="px-6 py-4">LOKASI</th>
+                <th className="px-6 py-4">TANGGAL</th>
                 <th className="px-6 py-4 text-right">STATUS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50/80">
               {filteredActivities.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className="px-6 py-12 text-center text-gray-400 text-xs font-medium">
+                  <td colSpan="5" className="px-6 py-12 text-center text-gray-400 text-xs font-medium">
                     Belum ada rekaman riwayat aktivitas yang cocok dengan kata kunci pencarian Anda.
                   </td>
                 </tr>
@@ -145,6 +134,9 @@ export default function HistoryPage() {
                     </td>
                     <td className="px-6 py-4 font-mono font-black text-sm text-gray-900">{a.blood}</td>
                     <td className="px-6 py-4 text-gray-400 font-semibold">{a.location}</td>
+                    <td className="px-6 py-4 text-gray-500 text-xs font-medium">
+                      {a.raw_date ? new Date(a.raw_date).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : "-"}
+                    </td>
                     <td className="px-6 py-4 text-right">
                       <span className={`text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wide ${a.statusColor}`}>
                         {a.status}
@@ -157,7 +149,6 @@ export default function HistoryPage() {
           </table>
         </div>
 
-        {/* 🔴 BAGIAN 4: FOOTER PAGINATION */}
         <div className="flex flex-col sm:flex-row justify-between items-center px-6 py-4 border-t border-gray-50 gap-4 text-xs text-gray-400 font-bold">
           <span>Menampilkan 1-{filteredActivities.length} dari {activities.length} aktivitas</span>
           <div className="flex space-x-1 select-none">
@@ -166,7 +157,6 @@ export default function HistoryPage() {
             <button className="w-7 h-7 flex items-center justify-center border border-gray-200 rounded-lg bg-white hover:bg-gray-50 text-gray-500 cursor-pointer">›</button>
           </div>
         </div>
-
       </div>
     </div>
   );

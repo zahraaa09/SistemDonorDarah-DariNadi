@@ -6,10 +6,6 @@ from app.models.hospital import Hospital
 from app.schemas.location import LocationCreate
 from app.schemas.hospital import HospitalCreate
 
-# =====================================================================
-# 📍 1. CRUD LOKASI (LOCATIONS)
-# =====================================================================
-
 def create_location(db: Session, location: LocationCreate):
     db_location = Location(name=location.name)
     db.add(db_location)
@@ -28,19 +24,13 @@ def delete_location(db: Session, location_id: int):
         return True
     return False
 
-
-# =====================================================================
-# 🏥 2. CRUD RUMAH SAKIT (HOSPITALS)
-# =====================================================================
-
 def create_hospital(db: Session, hospital: HospitalCreate):
     db_hospital = Hospital(
         name=hospital.name,
-        address=hospital.address, # Ditambahkan agar alamat rumah sakit ikut tersimpan
+        address=hospital.address, 
         id_location=hospital.id_location,
-        # Aktifkan dua baris di bawah ini jika skema HospitalCreate sudah mendukung koordinat:
-        # latitude=hospital.latitude,
-        # longitude=hospital.longitude
+        latitude=hospital.latitude,
+        longitude=hospital.longitude
     )
     db.add(db_hospital)
     db.commit()
@@ -48,7 +38,6 @@ def create_hospital(db: Session, hospital: HospitalCreate):
     return db_hospital
 
 def get_all_hospitals(db: Session):
-    """Mengambil SELURUH daftar rumah sakit untuk kebutuhan dropdown select di React"""
     return db.query(Hospital).all()
 
 def get_hospitals_by_location(db: Session, location_id: int):
@@ -62,16 +51,11 @@ def delete_hospital(db: Session, hospital_id: int):
         return True
     return False
 
-# 🚀 PANDUAN TAMBAHAN: Jika nanti ingin mengaktifkan fungsi pencarian Haversine terdekat,
-# kamu tinggal menyelipkan fungsi get_nearby_hospitals di area ini.
-
-
-# =====================================================================
-# 👥 3. CRUD KENDALI USER (USERS CONTROLS)
-# =====================================================================
-
-def get_all_users(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(User).offset(skip).limit(limit).all()
+def get_all_users(db: Session, skip: int = 0, limit: int = 100, available_only: bool = False):
+    query = db.query(User)
+    if available_only:
+        query = query.filter(User.is_available == True)
+    return query.offset(skip).limit(limit).all()
 
 def get_user_by_id(db: Session, user_id: int):
     return db.query(User).filter(User.id == user_id).first()

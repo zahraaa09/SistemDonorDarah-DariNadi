@@ -9,7 +9,6 @@ class RequestResponse(Base):
     id = Column(Integer, primary_key=True, index=True)
     id_request = Column(Integer, ForeignKey("donor_request.id"), nullable=False)
     id_user = Column(Integer, ForeignKey("users.id"), nullable=False) # ID Pendonor
-    # Status: 'pending', 'accepted', 'rejected'
     status = Column(String, default="pending") 
 
     # Relasi

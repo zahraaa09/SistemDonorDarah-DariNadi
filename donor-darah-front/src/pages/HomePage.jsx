@@ -3,7 +3,6 @@ import Navbar from "../components/Navbar";
 import HomeRequest from "./HomeRequest";
 import HomeDonors from "./HomeDonors";
 
-// --- Ikon SVG Pendukung Tambahan Sesuai Mockup Image_902c87.jpg ---
 const ShieldIcon = () => (
   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c80040" strokeWidth="2">
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -35,10 +34,7 @@ const SaveLifeIcon = () => (
 );
 
 export default function HomePage({ onNavigate }) {
-  // State utama menggunakan nama "Requests" secara konsisten
   const [activeTab, setActiveTab] = useState("Home");
-
-  // 🚀 Mendengarkan sinyal perpindahan tab dari modul eksternal secara langsung tanpa percabangan teks
   useEffect(() => {
     const handleTabChange = (e) => {
       if (e.detail) {
@@ -52,7 +48,6 @@ export default function HomePage({ onNavigate }) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans antialiased">
-      {/* 🤝 MURNI & SINKRON: Oper variabel langsung apa adanya tanpa manipulasi string kondisional */}
       <Navbar 
         activeTab={activeTab} 
         setActiveTab={setActiveTab} 
@@ -60,15 +55,12 @@ export default function HomePage({ onNavigate }) {
         onNavigateNotification={() => onNavigate("notifications")} 
       />
 
-      {/* Konten Tengah Dinamis */}
       <div className="flex-1">
         {activeTab === "Home" && (
           <div className="bg-white">
             {activeTab === "Donors" && <HomeDonors onNavigate={onNavigate} />}
             
-            {/* 🔴 SECTION 1: HERO BANNER UTAMA (SESUAI MOCKUP IMAGE_902C87.JPG) */}
             <div className="max-w-7xl mx-auto px-6 lg:px-12 py-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center bg-white">
-              {/* Sisi Kiri: Teks & Aksi */}
               <div className="lg:col-span-7 space-y-6 text-left">
                 <div className="space-y-2">
                   <h2 className="text-gray-900 font-extrabold text-2xl md:text-3xl tracking-tight">
@@ -82,8 +74,6 @@ export default function HomePage({ onNavigate }) {
                 <p className="text-sm md:text-base text-gray-500 leading-relaxed max-w-xl">
                   Menghubungkan pendonor darah dengan pasien dalam situasi darurat. Platform kami memastikan respons cepat dan manajemen pasokan darah yang aman karena setiap detik yang sangat berharga.
                 </p>
-
-                {/* Pengalihan Rute Aksi Tombol */}
                 <div className="flex items-center gap-4 pt-2">
                   <button 
                     onClick={() => setActiveTab("Requests")} 
@@ -99,8 +89,6 @@ export default function HomePage({ onNavigate }) {
                   </button>
                 </div>
               </div>
-
-              {/* Sisi Kanan: Visual Maskot Blood Drops */}
               <div className="lg:col-span-4 flex justify-center lg:justify-end">
                 <img 
                   src="src/assets/blood.png" 
@@ -109,8 +97,6 @@ export default function HomePage({ onNavigate }) {
                 />
               </div>
             </div>
-
-            {/* 📊 SECTION 2: GRID COUNTER UTAMA GRID (10,000+ NYAWA TERSELAMATKAN) */}
             <div className="bg-slate-50 border-y border-gray-100">
               <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-4 gap-6">
                 <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm text-center">
@@ -131,8 +117,6 @@ export default function HomePage({ onNavigate }) {
                 </div>
               </div>
             </div>
-
-            {/* 🛠️ SECTION 3: ALUR ALIR CARA KERJA SISTEM */}
             <div className="max-w-7xl mx-auto px-6 py-16 bg-white text-center">
               <div className="mb-12">
                 <h2 className="text-3xl font-black text-gray-900 tracking-tight">Cara Kerja</h2>
@@ -142,7 +126,6 @@ export default function HomePage({ onNavigate }) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto text-left">
-                {/* Langkah 1 */}
                 <div className="space-y-3 p-4">
                   <RegistrationIcon />
                   <h3 className="font-bold text-gray-900 text-base">1. Registrasi</h3>
@@ -150,7 +133,6 @@ export default function HomePage({ onNavigate }) {
                     Buat profil, verifikasi golongan darah Anda, dan jadilah bagian dari komunitas donor darah kami.
                   </p>
                 </div>
-                {/* Langkah 2 */}
                 <div className="space-y-3 p-4">
                   <NotificationIcon />
                   <h3 className="font-bold text-gray-900 text-base">2. Dapatkan Notifikasi</h3>
@@ -158,7 +140,6 @@ export default function HomePage({ onNavigate }) {
                     Terima peringatan instan ketika rumah sakit atau pasien di dekat Anda membutuhkan darah yang cocok dengan darah Anda dalam keadaan darurat.
                   </p>
                 </div>
-                {/* Langkah 3 */}
                 <div className="space-y-3 p-4">
                   <SaveLifeIcon />
                   <h3 className="font-bold text-gray-900 text-base">3. Selamatkan Nyawa</h3>
@@ -176,7 +157,6 @@ export default function HomePage({ onNavigate }) {
         {activeTab === "Donors" && <HomeDonors onNavigate={onNavigate} />}
       </div>
 
-      {/* Footer Bawah */}
       <footer className="bg-gray-900 text-gray-400 py-12 px-8 border-t border-gray-800 mt-auto">
         <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-3">

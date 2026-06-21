@@ -19,12 +19,11 @@ def login(email: str, password: str, db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=400, detail="Email atau password salah")
     
-    # Tambahkan blood_type di sini
     return {
         "message": "Login berhasil", 
         "user_id": db_user.id, 
         "name": db_user.name,
-        "blood_type": db_user.blood_type  # <--- INI KUNCI SINKRONISASI
+        "blood_type": db_user.blood_type 
     }
     
 @router.put("/{user_id}/profile", response_model=UserResponse)

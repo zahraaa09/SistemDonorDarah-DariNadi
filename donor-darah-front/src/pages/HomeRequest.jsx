@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../services/api";
-
-// Mengarahkan masuk ke dalam folder dashboard tempat DetailRequestPage berada
+import { getUrgencyStatus } from "../utils/urgencyStatus";
 import DetailRequestPage from "./dashboard/DetailRequestPage";
 
 const MapPinIcon = () => (
@@ -27,19 +26,15 @@ export default function HomeRequest({ onNavigate }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [bloodFilter, setBloodFilter] = useState("Semua");
   const [selectedId, setSelectedId] = useState(null);
-  
-  // 🔄 State untuk mengontrol jumlah data awal yang dimuat (diubah ke 6 agar pas dengan grid kelipatan 3)
   const [visibleCount, setVisibleCount] = useState(6);
-  // State tambahan untuk memantau status loading dan error API
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const currentUserId = localStorage.getItem("user_id");
 
-  // AMBIL DATA ASLI DARI BACKEND FASTAPI
   useEffect(() => {
     setLoading(true);
     api.get("/donor-requests/open")
       .then((res) => {
-        // PERBAIKAN 1: Validasi data untuk memastikan res.data berbentuk Array sebelum disimpan
         if (Array.isArray(res.data)) {
           setRequests(res.data);
         } else {
@@ -58,8 +53,6 @@ export default function HomeRequest({ onNavigate }) {
   if (selectedId) {
     return <DetailRequestPage requestId={selectedId} onBack={() => setSelectedId(null)} />;
   }
-
-  // PERBAIKAN 2: Antisipasi jika nilai database berupa null/undefined agar filter tidak crash (.toLowerCase() aman)
   const filtered = requests.filter((r) => {
     const query = searchQuery.toLowerCase().trim();
     
@@ -76,20 +69,28 @@ export default function HomeRequest({ onNavigate }) {
     return matchSearch && matchBlood;
   });
 
-  // Memotong data yang ditampilkan sesuai limit pagination dinamis
-  const displayedRequests = filtered.slice(0, visibleCount);
+  const orderedRequests = [
+    ...filtered.filter((r) => parseInt(r.id_user) === parseInt(currentUserId)),
+    ...filtered.filter((r) => parseInt(r.id_user) !== parseInt(currentUserId))
+  ];
+
+  const displayedRequests = orderedRequests.slice(0, visibleCount);
+  const displayedOwnRequests = displayedRequests.filter((r) => parseInt(r.id_user) === parseInt(currentUserId));
+  const displayedOtherRequests = displayedRequests.filter((r) => parseInt(r.id_user) !== parseInt(currentUserId));
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 font-sans antialiased">
       
-      {/* CONTAINER FILTER ATAS */}
       <div className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col md:flex-row items-end justify-between gap-4 mb-10">
         <div className="w-full md:flex-1">
           <label className="block text-xs font-black text-gray-400 uppercase mb-2 tracking-wide">
             Cari berdasarkan Lokasi atau Rumah Sakit
           </label>
           <div className="relative flex items-center border border-gray-200 rounded-xl bg-gray-50/50 px-3 py-2.5 gap-2 focus-within:border-[#c80040] transition-colors">
-            <span className="text-gray-400 text-sm select-none">🔍</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-gray-400">
+              <circle cx="11" cy="11" r="7" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
             <input
               type="text"
               placeholder="Ketik sesuatu..."
@@ -121,7 +122,6 @@ export default function HomeRequest({ onNavigate }) {
           </select>
         </div>
 
-        {/* PERBAIKAN 3: Tombol filter sekarang tidak melakukan submit form kaku yang merusak state render */}
         <button 
           type="button"
           onClick={() => setVisibleCount(6)} // Reset count view saat filter baru ditekan
@@ -132,8 +132,7 @@ export default function HomeRequest({ onNavigate }) {
       </div>
 
       <h2 className="text-2xl font-black text-gray-900 mb-6 tracking-tight">Daftar Permintaan</h2>
-      
-      {/* PERBAIKAN 4: Kondisi penanganan Loading dan Error agar terlihat jelas letak kerusakannya */}
+
       {loading ? (
         <div className="bg-white rounded-2xl border border-gray-100 p-12 text-center text-gray-400 text-xs font-medium shadow-sm animate-pulse">
           ⏳ Sedang menyambungkan ke database server...
@@ -148,78 +147,144 @@ export default function HomeRequest({ onNavigate }) {
           Belum ada data permintaan aktif yang cocok dengan kriteria filter pencarian Anda.
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {displayedRequests.map((r) => {
-            const urgencyLabel = r.urgency_level || "MENDESAK";
-            return (
-              <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col justify-between gap-6 hover:border-gray-200 transition-all relative">
-                <div className="flex items-start justify-between">
-                  <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm/5 ${bloodBg[r.blood_type] || "bg-red-50 text-red-700"}`}>
-                    {r.blood_type}
-                  </div>
-                  <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${
-                    urgencyLabel === 'KRITIS' ? 'bg-red-50 text-red-600 border border-red-100' : 'bg-amber-50 text-amber-700 border border-amber-100'
-                  }`}>
-                    💥 {urgencyLabel}
-                  </span>
-                </div>
-                
+        <div className="space-y-8">
+          {displayedOwnRequests.length > 0 && (
+            <div className="bg-white rounded-2xl border border-[#c80040] p-5 shadow-sm">
+              <div className="flex items-center justify-between mb-4">
                 <div>
-                  <div className="font-extrabold text-gray-900 text-base mb-1.5 tracking-tight">
-                    {r.patient_name}
+                  <h3 className="text-base font-black text-gray-900">Permintaan Saya</h3>
+                  <p className="text-xs text-gray-500">Permintaan donor yang Anda buat sendiri akan ditandai khusus di sini.</p>
+                </div>
+                <span className="text-[10px] font-black uppercase tracking-wider bg-[#c80040] text-white px-3 py-1 rounded-full">
+                  Milik Saya
+                </span>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {displayedOwnRequests.map((r) => {
+                  const urgency = getUrgencyStatus(r.urgency_level);
+                  return (
+                    <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-[#f9dadb] p-5 shadow-sm flex flex-col justify-between gap-6 hover:border-[#f3b0b8] transition-all relative ring-1 ring-[#f3b0b8]/30">
+                      <div className="absolute top-4 right-4 text-[11px] font-black uppercase tracking-wider text-[#c80040] bg-[#fee2e6] px-2.5 py-1 rounded-full">
+                        Saya
+                      </div>
+                      <div className="flex items-start justify-between">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm/5 ${bloodBg[r.blood_type] || "bg-red-50 text-red-700"}`}>
+                          {r.blood_type}
+                        </div>
+                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${urgency.colorClass}`}>
+                          {urgency.label}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="font-extrabold text-gray-900 text-base mb-1.5 tracking-tight">
+                          {r.patient_name}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium leading-snug">
+                          <MapPinIcon />
+                          <span className="truncate">{r.hospital?.name || r.hospital_name || "Rumah Sakit Umum Daerah"}</span>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 w-full mt-2">
+                        <a
+                          href={`https://wa.me/${(r.contact_phone || "0").replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all flex items-center justify-center gap-1.5 text-center decoration-none shadow-sm"
+                        >
+                          Hubungi
+                        </a>
+                        <button 
+                          onClick={() => setSelectedId(r.id)}
+                          className="flex-1 py-2.5 rounded-xl text-xs font-black bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer transition-colors border-none shadow-sm"
+                        >
+                          Lihat Detail
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayedOtherRequests.map((r) => {
+              const urgency = getUrgencyStatus(r.urgency_level);
+              return (
+                <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col justify-between gap-6 hover:border-gray-200 transition-all relative">
+                  <div className="flex items-start justify-between">
+                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm/5 ${bloodBg[r.blood_type] || "bg-red-50 text-red-700"}`}>
+                      {r.blood_type}
+                    </div>
+                    <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider ${urgency.colorClass}`}>
+                      {urgency.label}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium leading-snug">
-                    <MapPinIcon />
-                    <span className="truncate">{r.hospital?.name || r.hospital_name || "Rumah Sakit Umum Daerah"}</span>
+                  <div>
+                    <div className="font-extrabold text-gray-900 text-base mb-1.5 tracking-tight">
+                      {r.patient_name}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-gray-400 text-xs font-medium leading-snug">
+                      <MapPinIcon />
+                      <span className="truncate">{r.hospital?.name || r.hospital_name || "Rumah Sakit Umum Daerah"}</span>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 w-full mt-2">
+                    <a
+                      href={`https://wa.me/${(r.contact_phone || "0").replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all flex items-center justify-center gap-1.5 text-center decoration-none shadow-sm"
+                    >
+                      Hubungi
+                    </a>
+                    <button 
+                      onClick={() => setSelectedId(r.id)}
+                      className="flex-1 py-2.5 rounded-xl text-xs font-black bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer transition-colors border-none shadow-sm"
+                    >
+                      Lihat Detail
+                    </button>
                   </div>
                 </div>
-                
-                <button 
-                  onClick={() => setSelectedId(r.id)}
-                  className="w-full py-2.5 rounded-xl text-xs font-bold bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer transition-colors border-none shadow-sm"
-                >
-                  Lihat Detail
-                </button>
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {/* KARTU CTA UTAMAKAN CORAK DAN KESESUAIAN VISUAL */}
-          <div className="bg-[#c80040] rounded-2xl text-white p-6 flex flex-col items-center justify-center text-center shadow-xl shadow-red-900/10 min-h-[250px] relative overflow-hidden">
-            
-            <div className="w-11 h-11 rounded-full border-2 border-white/90 flex items-center justify-center mb-4 select-none">
+            <div className="bg-[#c80040] rounded-2xl text-white p-6 flex flex-col items-center justify-center text-center shadow-xl shadow-red-900/10 min-h-[250px] relative overflow-hidden">
+              
+              <div className="w-11 h-11 rounded-full border-2 border-white/90 flex items-center justify-center mb-4 select-none">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
-                <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+                <path d="M12 5v14M5 12h14" />
               </svg>
             </div>
 
-            <div className="mb-5 space-y-1.5">
-              <h3 className="font-extrabold text-xl tracking-tight leading-tight">
-                Lebih Banyak Permintaan
-              </h3>
-              <p className="text-red-100/90 text-xs font-medium max-w-[210px] mx-auto leading-relaxed">
-                Masih ada {filtered.length > visibleCount ? filtered.length - visibleCount : "0"} permintaan darah terverifikasi di wilayah Anda.
-              </p>
+              <div className="mb-5 space-y-1.5">
+                <h3 className="font-extrabold text-xl tracking-tight leading-tight">
+                  Lebih Banyak Permintaan
+                </h3>
+                <p className="text-red-100/90 text-xs font-medium max-w-[210px] mx-auto leading-relaxed">
+                  Masih ada {filtered.length > visibleCount ? filtered.length - visibleCount : "0"} permintaan darah terverifikasi di wilayah Anda.
+                </p>
+              </div>
+
+              <button 
+                onClick={() => {
+                  if (filtered.length > visibleCount) {
+                    setVisibleCount((prev) => prev + 6);
+                  } else {
+                    setVisibleCount(6);
+                  }
+                }}
+                className="bg-white hover:bg-red-50 text-[#c80040] font-extrabold px-8 py-2.5 rounded-full text-xs transition-all border-none cursor-pointer shadow-md tracking-wide z-10"
+              >
+                {filtered.length > visibleCount ? "Muat Lainnya" : "Reset Tampilan"}
+              </button>
+
+              <div className="absolute -bottom-6 -right-6 text-7xl opacity-10 pointer-events-none select-none">
+                ❤️
+              </div>
             </div>
 
-            <button 
-              onClick={() => {
-                if (filtered.length > visibleCount) {
-                  setVisibleCount((prev) => prev + 6);
-                } else {
-                  setVisibleCount(6);
-                }
-              }}
-              className="bg-white hover:bg-red-50 text-[#c80040] font-extrabold px-8 py-2.5 rounded-full text-xs transition-all border-none cursor-pointer shadow-md tracking-wide z-10"
-            >
-              {filtered.length > visibleCount ? "Muat Lainnya" : "Reset Tampilan"}
-            </button>
-
-            <div className="absolute -bottom-6 -right-6 text-7xl opacity-10 pointer-events-none select-none">
-              ❤️
-            </div>
           </div>
-
         </div>
       )}
     </div>

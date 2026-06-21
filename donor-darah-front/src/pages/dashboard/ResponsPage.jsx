@@ -17,14 +17,8 @@ export default function ResponsPage() {
 
   const handleUpdateStatus = async (responseId, newStatus) => {
     try {
-      // Mengupdate status respon
       await api.put(`/donor-requests/response/${responseId}?status=${newStatus}`);
-      
-      // Update state lokal
       setMyResponses(prev => prev.map(r => r.id === responseId ? { ...r, status: newStatus } : r));
-      
-      // Jika diterima, mungkin permintaan utamanya berubah menjadi fulfilled di backend
-      // Kita bisa memuat ulang data atau memicu refresh jika perlu
     } catch (err) { alert("Gagal update status."); }
   };
 
@@ -42,7 +36,6 @@ export default function ResponsPage() {
             
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-3">
-                {/* Badge Status Dinamis */}
                 <span className={`text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-wider 
                   ${r.status === 'pending' ? 'bg-amber-50 text-amber-700 border border-amber-100' : 
                     r.status === 'accepted' ? 'bg-green-50 text-green-700 border border-green-100' : 
@@ -63,7 +56,6 @@ export default function ResponsPage() {
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Tombol aksi hanya muncul jika status masih pending */}
               {r.status === 'pending' && (
                 <>
                   <button onClick={() => handleUpdateStatus(r.id, 'accepted')} className="bg-[#c80040] hover:bg-[#a80034] text-white px-5 py-2.5 rounded-xl text-xs font-black transition-all">
@@ -75,7 +67,6 @@ export default function ResponsPage() {
                 </>
               )}
               
-              {/* Status Fulfilled */}
               {r.status === 'fulfilled' && (
                 <span className="text-xs font-bold text-blue-600 px-4 py-2">Permintaan ini sudah selesai</span>
               )}

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "../../services/api"; // Mundur 2 folder ke src/services/api
 
-// --- Ikon SVG Bawaan (Dipertahankan 100% Sesuai File Aslimu) ---
 const BloodDropIcon = ({ size = 22, color = "#c80040" }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill={color}><path d="M12 2C12 2 4 10.5 4 15a8 8 0 0016 0C20 10.5 12 2 12 2z" /></svg>
 );
@@ -10,9 +9,11 @@ const MailIcon2 = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="no
 const PhoneIcon2 = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c80040" strokeWidth="1.8"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 3.07 9.82 19.79 19.79 0 0 1 2 1.18 2 2 0 0 1 4 .01h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 7.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" /></svg>;
 const PinIcon2 = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c80040" strokeWidth="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>;
 
-export default function ProfilePage() {
+export default function ProfilePage({ onEditProfile }) {
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isAvailable, setIsAvailable] = useState(false);
+  const [togglingStatus, setTogglingStatus] = useState(false);
   const userId = localStorage.getItem("user_id");
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export default function ProfilePage() {
       api.get(`/master/users/${userId}`)
         .then((res) => {
           setUserProfile(res.data);
+          setIsAvailable(res.data.is_available ?? true);
           setLoading(false);
         })
         .catch((err) => {
@@ -28,6 +30,21 @@ export default function ProfilePage() {
         });
     }
   }, [userId]);
+
+  const handleToggleAvailability = async () => {
+    const newStatus = !isAvailable;
+    setTogglingStatus(true);
+    try {
+      await api.patch(`/users/${userId}/status?is_available=${newStatus}`);
+      setIsAvailable(newStatus);
+      setUserProfile((prev) => ({ ...prev, is_available: newStatus }));
+    } catch (err) {
+      console.error("Gagal mengubah status donor:", err);
+      alert("Gagal mengubah status. Coba beberapa saat lagi.");
+    } finally {
+      setTogglingStatus(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -51,20 +68,15 @@ export default function ProfilePage() {
   return (
     <div className="flex-1 p-8 overflow-y-auto bg-[#FAF8F5] font-sans antialiased">
       
-      {/* 🔴 HEADER HALAMAN (Judul Atas Mockup) */}
       <div className="mb-6">
         <h1 className="text-2xl font-black text-gray-900 tracking-tight">Profil Saya</h1>
         <p className="text-gray-400 text-xs mt-1">Kelola data keanggotaan dan status ketersediaan donor Anda.</p>
       </div>
 
-      {/* 🔴 KARTU HERO UTAMA (User Avatar & Status Kesiapan) */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mb-6 relative overflow-hidden">
-        {/* Dekorasi Watermark Latar Belakang Lingkaran */}
         <div className="absolute top-0 right-0 w-36 h-36 bg-red-50/40 rounded-bl-full -mr-8 -mt-8 pointer-events-none" />
         
         <div className="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10 w-full">
-          
-          {/* Identitas Kiri: Foto, Nama, Status */}
           <div className="flex flex-col md:flex-row items-center gap-5 text-center md:text-left">
             <div className="relative">
               <div className="w-20 h-20 rounded-full bg-gray-100 overflow-hidden border-2 border-white shadow-md flex items-center justify-center">
@@ -98,8 +110,7 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Indikator Golongan Darah Kanan */}
-          <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4 min-w-[120px] text-center shadow-sm/5 flex flex-col items-center justify-center">
+          <div className="bg-red-50/60 border border-red-100 rounded-2xl p-4 min-w-30 text-center shadow-sm/5 flex flex-col items-center justify-center">
             <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 block">GOL DARAH</span>
             <div className="flex items-center gap-1.5">
               <BloodDropIcon size={18} />
@@ -110,17 +121,15 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* 🔴 KARTU DETAIL INFORMASI KONTAK & WILAYAH */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-        <h3 className="font-extrabold text-gray-900 text-sm mb-5 pb-3 border-b border-gray-50 tracking-tight uppercase text-gray-400">
+<h3 className="font-extrabold text-gray-900 text-sm mb-5 pb-3 border-b border-gray-50 tracking-tight uppercase">
           Informasi Kontak & Wilayah Basis
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          
-          {/* Blok Info 1: Email */}
+
           <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center flex-shrink-0 border border-red-100/50">
+            <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center shrink-0 border border-red-100/50">
               <MailIcon2 />
             </div>
             <div className="overflow-hidden">
@@ -132,9 +141,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Blok Info 2: Nomor Telepon */}
           <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center flex-shrink-0 border border-red-100/50">
+            <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center shrink-0 border border-red-100/50">
               <PhoneIcon2 />
             </div>
             <div>
@@ -144,9 +152,8 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          {/* Blok Info 3: Wilayah Rumah / Basis */}
           <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
-            <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center flex-shrink-0 border border-red-100/50">
+            <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center shrink-0 border border-red-100/50">
               <PinIcon2 />
             </div>
             <div className="flex-1">
@@ -157,6 +164,36 @@ export default function ProfilePage() {
             </div>
           </div>
 
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mt-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-5">
+          <div>
+            <h3 className="font-extrabold text-gray-900 text-sm tracking-tight uppercase">Detail Personal</h3>
+            <p className="text-[11px] text-gray-500 mt-1">Tanggal lahir, jenis kelamin, dan berat badan Anda.</p>
+          </div>
+          <button
+            onClick={() => onEditProfile?.()}
+            className="self-start rounded-full border border-[#c80040] bg-white px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[#c80040] transition hover:bg-[#c80040] hover:text-white"
+          >
+            Edit Detail
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+            <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Tanggal Lahir</p>
+            <p className="text-sm font-bold text-gray-900">{userProfile.dob || "-"}</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+            <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Jenis Kelamin</p>
+            <p className="text-sm font-bold text-gray-900">{userProfile.gender || "-"}</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-gray-50 border border-gray-100">
+            <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-2">Berat Badan</p>
+            <p className="text-sm font-bold text-gray-900">{userProfile.weight ? `${userProfile.weight} kg` : "-"}</p>
+          </div>
         </div>
       </div>
 

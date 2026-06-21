@@ -7,6 +7,7 @@ class NotificationBase(BaseModel):
     type: str
     title: str
     description: str
+    request_id: Optional[int] = None
     is_read: bool = False
 
 class NotificationCreate(NotificationBase):

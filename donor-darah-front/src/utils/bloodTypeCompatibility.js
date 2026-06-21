@@ -1,12 +1,3 @@
-/**
- * Blood Type Compatibility Utility
- * Menentukan kompatibilitas golongan darah donor dengan pasien
- * Berdasarkan standar medis internasional
- */
-
-/**
- * Compatibility matrix: Donor blood type -> Array of compatible recipient blood types
- */
 const COMPATIBILITY_MATRIX = {
   "O-": ["O-", "O+", "A-", "A+", "B-", "B+", "AB-", "AB+"], // Universal donor
   "O+": ["O+", "A+", "B+", "AB+"],
@@ -15,17 +6,16 @@ const COMPATIBILITY_MATRIX = {
   "B-": ["B-", "B+", "AB-", "AB+"],
   "B+": ["B+", "AB+"],
   "AB-": ["AB-", "AB+"],
-  "AB+": ["AB+"], // Universal recipient (tapi hanya bisa terima dari AB+)
+  "AB+": ["AB+"], 
 };
 
 /**
  * Mengecek apakah donor blood type kompatibel dengan patient blood type
- * @param {string} donorBlood - Golongan darah donor (contoh: "O+", "A-", "AB+")
- * @param {string} patientBlood - Golongan darah pasien (contoh: "A+")
- * @returns {object} { isCompatible: boolean, needsConfirmation: boolean, reason: string }
+ * @param {string} donorBlood 
+ * @param {string} patientBlood 
+ * @returns {object} 
  */
 export function isCompatible(donorBlood, patientBlood) {
-  // Validasi input
   if (!donorBlood || !patientBlood) {
     return {
       isCompatible: false,
@@ -34,11 +24,9 @@ export function isCompatible(donorBlood, patientBlood) {
     };
   }
 
-  // Normalisasi input (hapus spasi, uppercase)
   const normalizedDonor = donorBlood.trim().toUpperCase();
   const normalizedPatient = patientBlood.trim().toUpperCase();
 
-  // Check apakah golongan darah valid
   if (!COMPATIBILITY_MATRIX[normalizedDonor]) {
     return {
       isCompatible: false,
@@ -55,7 +43,6 @@ export function isCompatible(donorBlood, patientBlood) {
     };
   }
 
-  // Check kompatibilitas dari matrix
   const compatibleRecipients = COMPATIBILITY_MATRIX[normalizedDonor];
   const isCompatible = compatibleRecipients.includes(normalizedPatient);
 
@@ -67,8 +54,7 @@ export function isCompatible(donorBlood, patientBlood) {
     };
   }
 
-  // Check apakah ada perbedaan Rhesus (+ vs -)
-  const donorRhesus = normalizedDonor.slice(-1); // Ambil karakter terakhir (+/-)
+  const donorRhesus = normalizedDonor.slice(-1); 
   const patientRhesus = normalizedPatient.slice(-1);
   const needsConfirmation = donorRhesus !== patientRhesus;
 
@@ -83,8 +69,8 @@ export function isCompatible(donorBlood, patientBlood) {
 
 /**
  * Helper function: Dapatkan recipient blood types yang kompatibel untuk donor tertentu
- * @param {string} donorBlood - Golongan darah donor
- * @returns {array} Array dari golongan darah pasien yang kompatibel
+ * @param {string} donorBlood 
+ * @returns {array} 
  */
 export function getCompatibleRecipients(donorBlood) {
   const normalized = donorBlood?.trim().toUpperCase();
@@ -93,7 +79,7 @@ export function getCompatibleRecipients(donorBlood) {
 
 /**
  * Helper function: Check apakah blood type adalah universal donor (O-)
- * @param {string} bloodType - Golongan darah
+ * @param {string} bloodType
  * @returns {boolean}
  */
 export function isUniversalDonor(bloodType) {
@@ -102,7 +88,7 @@ export function isUniversalDonor(bloodType) {
 
 /**
  * Helper function: Check apakah blood type adalah universal recipient (AB+)
- * @param {string} bloodType - Golongan darah
+ * @param {string} bloodType 
  * @returns {boolean}
  */
 export function isUniversalRecipient(bloodType) {

@@ -6,9 +6,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
   const [request, setRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isResponding, setIsResponding] = useState(false);
-const currentUserId = localStorage.getItem("user_id");
-
-  // Ambil ID user yang sedang login untuk analisis kecocokan donor
+  const currentUserId = localStorage.getItem("user_id");
   const myBloodType = localStorage.getItem("user_blood_type") || "O-"; 
 
   useEffect(() => {
@@ -41,59 +39,47 @@ const currentUserId = localStorage.getItem("user_id");
       </div>
     );
   }
-
-  // 🩸 Hitung Progress Batang Sesuai Gambar Mockup
-  // (Misal default simulasi terisi 1 kantong, atau kamu bisa kaitkan dengan database respon donor nantinya)
   const promisedUnits = request.promised_quantity || 1; 
   const percentage = Math.round((promisedUnits / request.quantity) * 100);
-
-  // 🎯 Hitung Analisis Kesesuaian Match % antara Pendonor & Pasien
   const isMatch = myBloodType === request.blood_type;
   const matchPercentage = isMatch ? 90 : 30;
 
-  const handleTanggap = () => {
-    // 1. Validasi diri sendiri
-    if (parseInt(request.user_id) === parseInt(currentUserId)) {
+  const handleTanggap = async () => {
+    if (parseInt(request.id_user) === parseInt(currentUserId)) {
       alert("Anda tidak bisa menanggapi permintaan Anda sendiri.");
       return;
     }
 
-    // 2. Validasi Kompatibilitas
     const compatibility = isCompatible(myBloodType, request.blood_type);
     if (!compatibility.isCompatible) {
       alert(`Tidak bisa menanggapi: ${compatibility.reason}`);
       return;
     }
-
-    // 3. Konfirmasi Rhesus (jika beda tapi kompatibel)
     if (compatibility.needsConfirmation) {
       const confirmRhesus = window.confirm("Perhatian: Rhesus berbeda namun kompatibel. Lanjutkan?");
       if (!confirmRhesus) return;
     }
 
-    setIsResponding(true);
-    // Panggil API untuk submit respon donor
-    api.post("/donor-requests/respond", { request_id: requestId, donor_id: currentUserId })
-      .then(() => {
-        alert("Tanggapan berhasil direkam!");
-        setIsResponding(false);
-      })
-      .catch((err) => {
-        alert("Gagal mengirim tanggapan.");
-        setIsResponding(false);
-      });
+    try {
+      setIsResponding(true);
+      await api.post("/donor-requests/respond", { request_id: requestId, donor_id: currentUserId });
+      const refreshed = await api.get(`/donor-requests/${requestId}`);
+      setRequest(refreshed.data);
+      alert("Tanggapan berhasil direkam!");
+    } catch (err) {
+      console.error("Gagal mengirim tanggapan:", err);
+      alert("Gagal mengirim tanggapan.");
+    } finally {
+      setIsResponding(false);
+    }
   };
 
-  if (loading) return <div className="text-center p-10">⏳ Memuat...</div>;
-  if (!request) return <div className="text-center p-10">❌ Data tidak ditemukan.</div>;
-
   const compatibility = isCompatible(myBloodType, request.blood_type);
-  const isOwner = parseInt(request.user_id) === parseInt(currentUserId);
+  const isOwner = parseInt(request.id_user) === parseInt(currentUserId);
   const isDisabled = !compatibility.isCompatible || isOwner || request.status !== 'pending';
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 font-sans">
-      {/* Navigasi Back */}
       <button 
         onClick={onBack} 
         className="text-sm font-bold text-gray-500 hover:text-gray-800 bg-transparent border-none cursor-pointer mb-6 flex items-center gap-1"
@@ -101,7 +87,6 @@ const currentUserId = localStorage.getItem("user_id");
         ← Kembali ke Daftar
       </button>
 
-      {/* HEADER UTAMA CARD */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
@@ -118,17 +103,12 @@ const currentUserId = localStorage.getItem("user_id");
           </p>
         </div>
         
-        {/* Badge Golongan Darah Besar */}
         <div className="w-16 h-16 rounded-2xl bg-red-50 text-[#c80040] border border-red-100 flex flex-col items-center justify-center shadow-sm">
           <span className="text-xl font-black">{request.blood_type}</span>
           <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">Gol Darah</span>
         </div>
       </div>
-
-      {/* KONTEN GRID 3 KOLOM */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        
-        {/* 1. INFORMASI PASIEN */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
           <h3 className="text-xs font-black uppercase text-gray-400 tracking-wider">Informasi Pasien</h3>
           
@@ -157,12 +137,39 @@ const currentUserId = localStorage.getItem("user_id");
               </div>
             </div>
           </div>
+          {request.user && (
+            <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
+              <h4 className="text-xs font-black uppercase text-gray-400 tracking-wider">Peminta Donor (Pengirim)</h4>
+              
+              <div className="flex items-start gap-3">
+                <span className="text-lg">👤</span>
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase">Nama Pengguna</div>
+                  <div className="text-sm font-black text-gray-900">{request.user.name}</div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="text-lg">✉️</span>
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase">Email</div>
+                  <div className="text-xs font-bold text-gray-700">{request.user.email}</div>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3">
+                <span className="text-lg">📱</span>
+                <div>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase">No. Telepon</div>
+                  <div className="text-xs font-bold text-gray-700">{request.user.phone}</div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* 2. AREA PETA LOKASI RUMAH SAKIT */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden h-full flex flex-col justify-between">
           <div className="bg-slate-800 p-12 text-center text-white font-bold flex flex-col items-center justify-center gap-2 flex-1 min-h-[160px] relative bg-[url('https://api.mapbox.com/')] bg-cover">
-            {/* Representasi Visual Map Pin Bawaan Mockup */}
             <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center animate-ping absolute"></div>
             <span className="text-2xl z-10">📍</span>
           </div>
@@ -173,10 +180,7 @@ const currentUserId = localStorage.getItem("user_id");
           </div>
         </div>
 
-        {/* 3. PANEL AKSI KANAN (TANGGAPI & PROGRESS) */}
         <div className="space-y-4">
-          
-          {/* Tombol Aksi Tanggap */}
           <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-2">
             <button 
           onClick={handleTanggap}
@@ -224,13 +228,10 @@ const currentUserId = localStorage.getItem("user_id");
 
         </div>
       </div>
-
-      {/* BARIS BAWAH: ANALISIS KESESUAIAN */}
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mt-6">
         <h3 className="text-xs font-black uppercase text-gray-400 tracking-wider mb-4">Analisis Kesesuaian</h3>
         
         <div className="flex flex-col sm:flex-row items-center gap-6">
-          {/* Cincin Presentase Lingkaran */}
           <div className="relative w-20 h-20 flex items-center justify-center rounded-full border-4 border-gray-100">
             <div className="absolute inset-0 rounded-full border-4 border-t-[#c80040] border-r-[#c80040] rotate-45"></div>
             <span className="text-lg font-black text-gray-900">{matchPercentage}%</span>
@@ -248,7 +249,6 @@ const currentUserId = localStorage.getItem("user_id");
           </div>
         </div>
       </div>
-
     </div>
   );
 }

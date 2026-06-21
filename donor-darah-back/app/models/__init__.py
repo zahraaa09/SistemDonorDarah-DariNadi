@@ -5,3 +5,4 @@ from app.models.user import User
 from app.models.donor_request import DonorRequest
 from app.models.request_response import RequestResponse
 from app.models.donation import Donation
+from app.models.notification import Notification

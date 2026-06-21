@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
-import api from "../../services/api"; // Mundur 2 folder ke src/services/api
+import api from "../../services/api"; 
 
-// --- Ikon SVG Sesuai Tema Mockup ---
 const UserEditIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c80040" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
@@ -21,7 +20,6 @@ const PrivacyIcon = () => (
 );
 
 export default function SettingsPage() {
-  // 📝 Rangkaian State Lengkap Sesuai Struktur Formulir Isian Atas & Bawah
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -39,7 +37,6 @@ export default function SettingsPage() {
   const [submitting, setSubmitting] = useState(false);
   const userId = localStorage.getItem("user_id");
 
-  // 🚀 LOAD DATA AWAL PENGGUNA DARI DATABASE POSTGRESQL
   useEffect(() => {
     if (userId) {
       api.get(`/master/users/${userId}`)
@@ -73,7 +70,6 @@ export default function SettingsPage() {
     }));
   };
 
-  // 🚀 KIRIM PERUBAHAN DATA BARU KE BACKEND FASTAPI
   const handleSaveChanges = async () => {
     if (!formData.name || !formData.email || !formData.phone) {
       alert("Kolom Nama, Email, dan Nomor Telepon wajib diisi!");
@@ -82,7 +78,6 @@ export default function SettingsPage() {
 
     try {
       setSubmitting(true);
-      // Mengirimkan payload penuh yang telah divalidasi oleh schemas/user.py di backend Anda
       await api.patch(`/master/users/${userId}`, formData);
       
       localStorage.setItem("user_name", formData.name);
@@ -105,16 +100,12 @@ export default function SettingsPage() {
 
   return (
     <div className="flex-1 p-8 overflow-y-auto bg-[#FAF8F5] font-sans antialiased">
-      
-      {/* Judul Atas Utama */}
       <div className="mb-6">
         <h1 className="text-2xl font-black text-gray-900 tracking-tight">Pengaturan Akun</h1>
         <p className="text-gray-400 text-xs mt-1">Kelola informasi profil, notifikasi, dan preferensi privasi Anda.</p>
       </div>
 
       <div className="space-y-6 max-w-4xl">
-        
-        {/* 🔴 KARTU 1: EDIT PROFIL (Sama Persis Format Layout Figma Atas) */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm border-l-4 border-l-[#c80040]">
           <h3 className="text-sm font-black text-gray-800 mb-5 flex items-center gap-2">
             <UserEditIcon /> <span>Edit Profil</span>
@@ -217,11 +208,7 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-
-        {/* 🔴 ROW BAWAH: KONFIGURASI NOTIFIKASI & PRIVASI DATA (GRID 2 KOLOM) */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          
-          {/* Kartu 2: Pengaturan Notifikasi */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm space-y-4">
             <h3 className="text-xs font-black text-gray-800 uppercase tracking-wide mb-2 flex items-center gap-2">
               <BellSettingsIcon /> <span>Pengaturan Notifikasi</span>
@@ -250,7 +237,6 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* Kartu 3: Privasi Akun */}
           <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
             <h3 className="text-xs font-black text-gray-800 uppercase tracking-wide mb-4 flex items-center gap-2">
               <PrivacyIcon /> <span>Privasi</span>
@@ -269,10 +255,7 @@ export default function SettingsPage() {
               </label>
             </div>
           </div>
-
         </div>
-
-        {/* Tombol Eksekusi Aksi Pojok Kanan Bawah */}
         <div className="flex justify-end items-center gap-6 pt-2">
           <button 
             type="button" 

@@ -9,8 +9,6 @@ class Hospital(Base):
     name = Column(String, nullable=False)
     address = Column(String, nullable=False)
     id_location = Column(Integer, ForeignKey("locations.id"), nullable=False)
-    
-    # 2. Tambahkan kolom koordinat
     latitude = Column(Float, nullable=False) 
     longitude = Column(Float, nullable=False)
 

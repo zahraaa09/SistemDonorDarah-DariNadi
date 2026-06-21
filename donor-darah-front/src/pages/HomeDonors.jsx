@@ -34,10 +34,9 @@ export default function HomeDonors({ onNavigate = () => {} }) {
   const patientBloodType = localStorage.getItem("user_blood_type");
 
   useEffect(() => {
-    api.get("/master/users")
+    api.get("/master/users?available_only=true")
       .then((res) => {
         const enrichedData = res.data
-          .filter((u) => u.is_available === true || u.is_available === undefined)
           .map((u, index) => ({
             ...u,
             distance: u.distance || parseFloat((Math.random() * 8 + 0.5).toFixed(1)),
@@ -49,7 +48,6 @@ export default function HomeDonors({ onNavigate = () => {} }) {
   }, []);
 
 const handleSendDirectRequest = async (donor) => {
-    // 1. Validasi Sesi & Data Dasar
     if (!currentUserId) {
       alert("Sila login terlebih dahulu!");
       return;
@@ -65,7 +63,6 @@ const handleSendDirectRequest = async (donor) => {
       return;
     }
 
-    // 2. Validasi Kompatibilitas
     const compatibilityCheck = isCompatible(donor.blood_type, patientBloodType);
     if (!compatibilityCheck.isCompatible) {
       alert(`Golongan darah tidak cocok!\n\n${compatibilityCheck.reason}`);
@@ -77,34 +74,32 @@ const handleSendDirectRequest = async (donor) => {
       if (!confirmRhesus) return;
     }
 
-    // 3. LOGIKA OTOMATIS: Buat Request jika belum ada
     let activeRequestId = localStorage.getItem("active_request_id");
 
     if (!activeRequestId || activeRequestId === "null" || activeRequestId === "") {
       try {
         const confirmAuto = window.confirm("Anda belum memiliki permintaan aktif. Apakah Anda ingin membuat permintaan baru secara otomatis?");
         if (!confirmAuto) return;
-
-        // payload sesuai schema backend: id_hospital, patient_name, blood_type, quantity, contact_phone
         const newReq = await api.post("/donor-requests/create", {
-          id_hospital: 0, // Pastikan ini angka 0 murni (bukan string)
+          id_user: parseInt(currentUserId),
+          id_hospital: 0, 
           patient_name: String(localStorage.getItem("user_name") || "Pasien"),
           blood_type: String(patientBloodType),
-          quantity: 1, // Pastikan ini angka 1 murni (bukan string)
-          contact_phone: String("6289512275480"), // Pastikan string sesuai schema
+          quantity: 1, 
+          contact_phone: String(localStorage.getItem("user_phone") || "6289512275480"),
           status: "pending"
         });
         
         activeRequestId = newReq.data.id;
         localStorage.setItem("active_request_id", activeRequestId);
       } catch (err) {
-        console.error("Gagal buat request:", err.response?.data);
-        alert("Gagal membuat permintaan donor otomatis. Pastikan data profil lengkap.");
+        console.error("Gagal buat request:", err.response?.data || err.message);
+        const backendDetail = err.response?.data?.detail || err.response?.data || err.message;
+        alert(`Gagal membuat permintaan donor otomatis. ${backendDetail}`);
         return;
       }
     }
 
-    // 4. Kirim Permintaan ke Donor
     const confirmRequest = window.confirm(`Apakah Anda yakin ingin mengirim permintaan donor kepada ${donor.name}?`);
     if (!confirmRequest) return;
 
@@ -121,7 +116,6 @@ const handleSendDirectRequest = async (donor) => {
       await api.post(`/donor-requests/direct-request`, payload);
       alert("Permintaan berhasil terkirim!");
     } catch (err) {
-      // Jika terjadi error pada direct-request, mungkin request ID sudah tidak valid
       if (err.response?.status === 404) {
         localStorage.removeItem("active_request_id");
         alert("Sesi permintaan lama sudah tidak aktif. Silakan coba klik 'Minta Donor' sekali lagi.");
@@ -235,13 +229,15 @@ const handleSendDirectRequest = async (donor) => {
                   }
                   return (
                     <button
-                      onClick={() => handleSendDirectRequest(d)}
+                      onClick={() => !isSelf && !isIncompatible && handleSendDirectRequest(d)}
                       disabled={isIncompatible || isSelf || requestingId === d.id}
-                      title={compatibility.reason}
-                      className={`w-full py-2.5 rounded-xl text-xs font-black text-white transition-all flex items-center justify-center gap-2 border-none shadow-sm ${
-                        isIncompatible
+                      title={isSelf ? "Ini adalah akun Anda" : compatibility.reason}
+                      className={`w-full py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 border-none shadow-sm ${
+                        isSelf
+                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                          : isIncompatible
                           ? "bg-gray-300 cursor-not-allowed text-gray-600"
-                          : "bg-[#c80040] hover:bg-[#a80034] cursor-pointer"
+                          : "bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer"
                       } ${requestingId === d.id ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
                       <RequestBloodIcon /> 

@@ -14,9 +14,7 @@ import CreateRequestPage from "./CreateRequestPage";
 export default function DariNadiDashboard({ onNavigate }) {
   const [activeTab, setActiveTab] = useState("profile");
   const [userName, setUserName] = useState("Pengguna DariNadi");
-
-  // State bantuan untuk memantau tab publik luar jika diklik dari dalam dashboard
-  const [publicTab, setPublicTab] = useState("Home");
+  const [publicTab, setPublicTab] = useState("");
   const [isCreatingRequest, setIsCreatingRequest] = useState(false);
 
   useEffect(() => {
@@ -26,18 +24,14 @@ export default function DariNadiDashboard({ onNavigate }) {
     }
   }, []);
     
-  // 🚀 ACTION TOMBOL SIGN OUT (Membersihkan Sesi & Redirect)
   const handleSignOut = () => {
-    localStorage.clear(); // Menghapus token, user_id, dan user_name dari browser
-    onNavigate("login");  // Mengarahkan langsung ke halaman login luar
+    localStorage.clear(); 
+    onNavigate("login");  
   };
 
-  // 🚀 HANDLER NAVIGASI KHUSUS NAVBAR ATAS
   const handleNavbarNavigation = (targetTab) => {
     setPublicTab(targetTab);
     onNavigate("home");
-    
-    // Memberikan delay mikro agar state HomePage luar sempat membaca tab yang dituju
     setTimeout(() => {
       const event = new CustomEvent("changePublicTab", { detail: targetTab });
       window.dispatchEvent(event);
@@ -45,13 +39,13 @@ export default function DariNadiDashboard({ onNavigate }) {
   };
 
   const handleSidebarTabChange = (tabId) => {
-    setIsCreatingRequest(false); // Sembunyikan form testing jika user pindah menu sidebar
+    setIsCreatingRequest(false); 
     setActiveTab(tabId);
+    setPublicTab(""); 
   };
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
-      {/* 👑 NAVBAR ATAS: Sekarang mengenali klik tombol luar & pemicu Notifikasi */}
       <Navbar 
         activeTab={publicTab} 
         setActiveTab={handleNavbarNavigation} 
@@ -59,9 +53,7 @@ export default function DariNadiDashboard({ onNavigate }) {
         onNavigateNotification={() => onNavigate("notifications")} // 🚀 HUBUNGKAN KE SINI
       />
 
-      {/* Konten Utama Dashboard */}
-      <div className="flex flex-1 w-full">
-        {/* SISI KIRI: Sidebar Panel */}
+      <div className="flex flex-1 w-full overflow-hidden">
         <Sidebar 
           active={activeTab} 
           setActive={handleSidebarTabChange} 
@@ -69,10 +61,9 @@ export default function DariNadiDashboard({ onNavigate }) {
           userName={userName} 
         />
 
-        {/* SISI KANAN: Area Konten Dinamis Sub-Page Internal */}
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="flex-1 p-8 overflow-y-auto min-h-0">
           <div className="max-w-4xl mx-auto">
-            {activeTab === "profile" && <ProfilePage />}
+            {activeTab === "profile" && <ProfilePage onEditProfile={() => setActiveTab("settings")} />}
             
             {activeTab === "requests" && (
               isCreatingRequest ? (

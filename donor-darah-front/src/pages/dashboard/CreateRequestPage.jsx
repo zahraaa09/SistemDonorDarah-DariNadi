@@ -2,22 +2,16 @@ import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 
 export default function CreateRequestPage({ onBack }) {
-  // State Form Utama
   const [patientName, setPatientName] = useState("");
-  // ✅ DIPERBAIKI: Set default "A+" agar tidak mengirim string kosong "" yang memicu error 422
   const [bloodType, setBloodType] = useState("A+"); 
   const [quantity, setQuantity] = useState(1);
   const [phone, setPhone] = useState("");
   const [hospitalId, setHospitalId] = useState("");
   const [urgency, setUrgency] = useState("Siaga"); 
-
-  // State Data Master & Info
   const [hospitals, setHospitals] = useState([]);
   const [submitting, setSubmitting] = useState(false);
-
   const userId = localStorage.getItem("user_id");
-const [selectedDonor, setSelectedDonor] = useState(null);
-  // Ambil data Rumah Sakit dari Backend untuk dropdown select
+  const [selectedDonor, setSelectedDonor] = useState(null);
   useEffect(() => {
     api.get("/master/hospitals")
       .then((res) => {
@@ -26,17 +20,14 @@ const [selectedDonor, setSelectedDonor] = useState(null);
       })
       .catch((err) => console.error("Gagal memuat master rumah sakit:", err));
   }, []);
-// Tambah state baru untuk info donor
 
-
-// Tambah useEffect baru untuk baca localStorage
 useEffect(() => {
   const raw = localStorage.getItem("selected_donor");
   if (raw) {
     const donor = JSON.parse(raw);
     setSelectedDonor(donor);
-    setBloodType(donor.blood_type); // ← pre-fill otomatis
-    localStorage.removeItem("selected_donor"); // bersihkan setelah dibaca
+    setBloodType(donor.blood_type); 
+    localStorage.removeItem("selected_donor");
   }
 }, []);
   const handleSubmit = async (e) => {
@@ -48,25 +39,23 @@ useEffect(() => {
 
     setSubmitting(true);
 
-    // ✅ DIPERBAIKI TOTAL: Nama kunci (keys) disesuaikan 100% dengan DonorRequestCreate Pydantic
     const payload = {
-      id_user: parseInt(userId),          // Sesuai Pydantic
-      id_hospital: parseInt(hospitalId),  // Sesuai Pydantic (id_hospital)
+      id_user: parseInt(userId),          
+      id_hospital: parseInt(hospitalId),  
       patient_name: patientName,
       blood_type: bloodType,
       quantity: parseInt(quantity),
-      contact_phone: phone,               // Sesuai Pydantic (contact_phone)
-      status: "pending"
+      contact_phone: phone,               
+      status: "pending",
+      urgency: urgency
     };
 
     try {
       await api.post("/donor-requests/create", payload);
       alert("Permintaan darah berhasil dibuat dan disiarkan!");
-      onBack(); // Kembali ke tabel utama setelah sukses
+      onBack(); 
     } catch (err) {
       console.error("Detail Validasi Error:", err.response?.data);
-      
-      // Mengurai pesan error array dari FastAPI agar mudah dibaca saat testing
       if (err.response?.data?.detail && Array.isArray(err.response.data.detail)) {
         const msg = err.response.data.detail.map(e => `${e.loc.join('.')} -> ${e.msg}`).join("\n");
         alert(`Gagal Validasi Pydantic:\n${msg}`);
@@ -80,7 +69,6 @@ useEffect(() => {
 
   return (
     <div className="flex-1 p-2 font-sans">
-      {/* Header Atas */}
       <div className="mb-6">
         <button 
           onClick={onBack}
@@ -91,11 +79,7 @@ useEffect(() => {
         <h2 className="text-2xl font-black text-gray-900">Buat Permintaan Darah</h2>
         <p className="text-xs text-gray-400 mt-1">Isi detail di bawah ini untuk mengajukan permintaan darah melalui jaringan DariNadi.</p>
       </div>
-
-      {/* Grid Layout 2 Kolom */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        
-        {/* KOLOM KIRI: FORM UTAMA */}
         <div className="lg:col-span-2 bg-white rounded-xl border border-gray-200 border-l-4 border-l-[#c80040] p-6 shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-4">
             
@@ -163,12 +147,10 @@ useEffect(() => {
                 required
               >
                 {hospitals.map(h => (
-                  <option key={h.id} value={h.id}>🏥 {h.name}</option>
+                  <option key={h.id} value={h.id}>{h.name}</option>
                 ))}
               </select>
             </div>
-
-            {/* SELEKTOR TINGKAT URGENSI */}
             <div>
               <label className="text-xs font-bold text-gray-700 block mb-2">Tingkat Urgensi</label>
               <div className="grid grid-cols-3 gap-3">
@@ -188,8 +170,6 @@ useEffect(() => {
                 ))}
               </div>
             </div>
-
-            {/* TOMBOL SUBMIT KIRIM */}
             <button
               type="submit"
               disabled={submitting}
@@ -200,8 +180,6 @@ useEffect(() => {
             </button>
           </form>
         </div>
-
-        {/* KOLOM KANAN: PANEL STATISTIK STOK & PANDUAN */}
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
             <h4 className="text-xs font-extrabold text-gray-800 uppercase tracking-wider mb-3 flex items-center gap-1.5">

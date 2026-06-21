@@ -1,4 +1,5 @@
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 class UserBase(BaseModel):
     name: str
@@ -7,20 +8,41 @@ class UserBase(BaseModel):
     blood_type: str
     id_location: int
     is_available: bool = True
+    dob: Optional[str] = None
+    gender: Optional[str] = None
+    weight: Optional[str] = None
+    address: Optional[str] = None
+    email_notify: Optional[bool] = None
+    wa_notify: Optional[bool] = None
+    public_profile: Optional[bool] = None
 
-# Digunakan saat registrasi (butuh password)
 class UserCreate(UserBase):
     password: str
 
-# Digunakan saat mengembalikan data user (password disembunyikan demi keamanan)
 class UserResponse(UserBase):
     id: int
 
     class Config:
         from_attributes = True
+
+class UserUpdate(BaseModel):
+    name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    blood_type: Optional[str] = None
+    id_location: Optional[int] = None
+    is_available: Optional[bool] = None
+    dob: Optional[str] = None
+    gender: Optional[str] = None
+    weight: Optional[str] = None
+    address: Optional[str] = None
+    email_notify: Optional[bool] = None
+    wa_notify: Optional[bool] = None
+    public_profile: Optional[bool] = None
+
+    class Config:
+        from_attributes = True
         
-        
-# Tambahkan ini di bagian bawah file app/schemas/user.py
 
 class LocationBase(BaseModel):
     name: str
@@ -32,4 +54,4 @@ class LocationResponse(LocationBase):
     id: int
 
     class Config:
-        from_attributes = True  # Supaya Pydantic bisa membaca objek dari SQLAlchemy
+        from_attributes = True 

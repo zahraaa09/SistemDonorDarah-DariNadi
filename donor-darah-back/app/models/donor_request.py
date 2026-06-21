@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Boolean
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.database import Base
@@ -14,8 +14,10 @@ class DonorRequest(Base):
     quantity = Column(Integer, nullable=False)
     contact_phone = Column(String, nullable=False)
     status = Column(String, default="pending")
+    urgency = Column(String, default="Siaga")  # Siaga / Darurat / Kritis
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    status = Column(String, default="DIBUTUHKAN") # Ubah default agar sesuai UI Anda
+    is_manual = Column(Boolean, default=True)
+
     # Relasi
     user = relationship("User", back_populates="donor_requests")
     hospital = relationship("Hospital", back_populates="donor_requests")

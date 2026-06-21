@@ -13,6 +13,13 @@ class User(Base):
     blood_type = Column(String, nullable=False)
     id_location = Column(Integer, ForeignKey("locations.id"), nullable=False)
     is_available = Column(Boolean, default=True)
+    dob = Column(String, nullable=True)
+    gender = Column(String, nullable=True)
+    weight = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    email_notify = Column(Boolean, default=True)
+    wa_notify = Column(Boolean, default=False)
+    public_profile = Column(Boolean, default=True)
 
     # Relasi
     location = relationship("Location", back_populates="users")
