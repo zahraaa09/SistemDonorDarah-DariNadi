@@ -96,9 +96,6 @@ export default function ProfilePage({ onEditProfile }) {
               <p className="text-xs font-mono font-bold text-gray-400 mb-3 tracking-wide">ID ANGGOTA: #{userProfile.id}</p>
               
               <div className="flex flex-wrap justify-center md:justify-start gap-2">
-                <span className="text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider bg-red-50 text-[#c80040] border border-red-100">
-                  PENDONOR RELEWAN
-                </span>
                 <span className={`text-[9px] font-black px-2.5 py-1 rounded-md uppercase tracking-wider border ${
                   userProfile.is_available 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-100" 
@@ -123,12 +120,12 @@ export default function ProfilePage({ onEditProfile }) {
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
 <h3 className="font-extrabold text-gray-900 text-sm mb-5 pb-3 border-b border-gray-50 tracking-tight uppercase">
-          Informasi Kontak & Wilayah Basis
+          Informasi Kontak & Wilayah
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
 
-          <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
+          <div className="flex items-start gap-4 p-3 rounded-xl">
             <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center shrink-0 border border-red-100/50">
               <MailIcon2 />
             </div>
@@ -141,7 +138,7 @@ export default function ProfilePage({ onEditProfile }) {
             </div>
           </div>
 
-          <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
+          <div className="flex items-start gap-4 p-3 rounded-xl">
             <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center shrink-0 border border-red-100/50">
               <PhoneIcon2 />
             </div>
@@ -152,12 +149,12 @@ export default function ProfilePage({ onEditProfile }) {
             </div>
           </div>
 
-          <div className="flex items-start gap-4 p-3 rounded-xl hover:bg-gray-50/50 transition-colors">
+          <div className="flex items-start gap-4 p-3 rounded-xl">
             <div className="w-10 h-10 rounded-xl bg-red-50/80 flex items-center justify-center shrink-0 border border-red-100/50">
               <PinIcon2 />
             </div>
             <div className="flex-1">
-              <div className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-1">Wilayah Basis Domisili</div>
+              <div className="text-[10px] text-gray-400 font-black uppercase tracking-wider mb-1">Wilayah Domisili</div>
               <div className="text-gray-800 text-xs font-bold leading-relaxed">
                 {userProfile.location?.name || userProfile.location_name || `ID Wilayah: ${userProfile.id_location || "-"}`}
               </div>

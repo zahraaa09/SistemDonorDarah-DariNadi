@@ -68,7 +68,7 @@ export default function RequestsPage({ onCreateTrigger }) {
                 key={r.id} 
                 className={`bg-white rounded-2xl border border-gray-100 border-l-4 ${
                   isPending ? "border-l-[#c80040]" : "border-l-blue-400"
-                } p-5 shadow-sm transition-all hover:border-gray-200`}
+                } p-5 shadow-sm`}
               >
                 <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                   <div className="flex-1 space-y-2">
@@ -90,26 +90,27 @@ export default function RequestsPage({ onCreateTrigger }) {
                     </div>
                     
                     <div className="flex items-center gap-1 text-xs text-gray-500 font-bold pt-1">
-                      <BloodDropIcon /> <span>{r.quantity} Kantong Kebutuhan</span>
+                      <BloodDropIcon /> <span>Dibutuhkan {r.quantity} Kantong </span>
                     </div>
                   </div>
                   
                   <div className="flex flex-row sm:flex-col gap-2 w-full sm:w-auto justify-end">
-                    {isPending && (
-                      <button 
-                        onClick={() => handleCloseRequest(r.id)}
-                        className="text-xs font-black px-4 py-2.5 rounded-xl bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer transition-all border-none shadow-sm flex-1 sm:flex-initial text-center whitespace-nowrap"
-                      >
-                        Telah Terpenuhi
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => setSelectedId(r.id)}
-                      className="text-xs font-bold px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 cursor-pointer transition-all flex-1 sm:flex-initial text-center whitespace-nowrap"
-                    >
-                      Lihat Detail
-                    </button>
-                  </div>
+  {/* Tambahkan kondisi r.status !== 'rejected' */}
+  {isPending && r.status !== 'rejected' && r.status !== 'pending' && (
+    <button 
+      onClick={() => handleCloseRequest(r.id)}
+      className="text-xs font-black px-4 py-2.5 rounded-xl bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer transition-all border-none shadow-sm flex-1 sm:flex-initial text-center whitespace-nowrap"
+    >
+      Telah Terpenuhi
+    </button>
+  )}
+  <button 
+    onClick={() => setSelectedId(r.id)}
+    className="text-xs font-bold px-4 py-2.5 rounded-xl border border-gray-200 text-gray-600 hover:text-gray-900 bg-white hover:bg-gray-50 cursor-pointer transition-all flex-1 sm:flex-initial text-center whitespace-nowrap"
+  >
+    Lihat Detail
+  </button>
+</div>
 
                 </div>
                 {r.responses && r.responses.length > 0 && (

@@ -1,6 +1,18 @@
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
+class LocationBase(BaseModel):
+    name: str
+
+class LocationCreate(LocationBase):
+    pass
+
+class LocationResponse(LocationBase):
+    id: int
+
+    class Config:
+        from_attributes = True
+
 class UserBase(BaseModel):
     name: str
     email: EmailStr
@@ -21,6 +33,7 @@ class UserCreate(UserBase):
 
 class UserResponse(UserBase):
     id: int
+    location: Optional[LocationResponse] = None
 
     class Config:
         from_attributes = True
@@ -39,19 +52,6 @@ class UserUpdate(BaseModel):
     email_notify: Optional[bool] = None
     wa_notify: Optional[bool] = None
     public_profile: Optional[bool] = None
-
-    class Config:
-        from_attributes = True
-        
-
-class LocationBase(BaseModel):
-    name: str
-
-class LocationCreate(LocationBase):
-    pass
-
-class LocationResponse(LocationBase):
-    id: int
 
     class Config:
         from_attributes = True 

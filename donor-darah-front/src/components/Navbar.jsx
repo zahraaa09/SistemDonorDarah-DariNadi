@@ -9,21 +9,29 @@ const BellIcon = () => (
 
 export default function Navbar({ activeTab, setActiveTab, onNavigate, onNavigateNotification }) {
   const isLoggedIn = !!localStorage.getItem("token");
-  const links = [
+  const allLinks = [
     { id: "Home", label: "Home" },
     { id: "Requests", label: "Requests" },
     { id: "Donors", label: "Donors" }
   ];
 
+  const visibleLinks = isLoggedIn 
+    ? allLinks 
+    : allLinks.filter(link => link.id === "Home");
+
   return (
-    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm/5 h-12 flex items-center">
+    <nav className="bg-white border-b border-gray-100 sticky top-0 z-50 shadow-sm/5 h-12 flex items-center font-bold">
       <div className="max-w-7xl w-full mx-auto px-6 flex items-center justify-between">
         
         <div 
           className="flex items-center gap-2 cursor-pointer select-none" 
           onClick={() => {
-            setActiveTab("Home");
-            onNavigate("home");
+            if (setActiveTab) {
+              setActiveTab("Home");
+            }
+            if (onNavigate) {
+              onNavigate("home");
+            }
           }}
         >
           <span className="text-[#c80040] font-black text-xl tracking-tight font-sans">
@@ -32,22 +40,22 @@ export default function Navbar({ activeTab, setActiveTab, onNavigate, onNavigate
         </div>
 
         <div className="flex items-center gap-8">
-          {links.map((link) => {
-            const isCurrentActive = activeTab?.toLowerCase() === link.id.toLowerCase();
-            
-            return (
-              <button
-                key={link.id}
-                onClick={() => setActiveTab(link.id)}
-                className={`text-sm font-bold transition-colors cursor-pointer bg-transparent border-none py-1 px-0 ${
-                  isCurrentActive ? "text-[#c80040]" : "text-gray-500 hover:text-gray-900"
-                }`}
-              >
-                {link.label}
-              </button>
-            );
-          })}
-        </div>
+        {visibleLinks.map((link) => {
+          const isCurrentActive = activeTab?.toLowerCase() === link.id.toLowerCase();
+          return (
+            <button
+              key={link.id}
+              onClick={() => {
+                if (setActiveTab) setActiveTab(link.id);
+                if (onNavigate) onNavigate(link.id);
+              }}
+              className={`... ${isCurrentActive ? "text-[#c80040]" : "text-gray-500 hover:text-gray-900"}`}
+            >
+              {link.label}
+            </button>
+          );
+        })}
+      </div>
         <div className="flex items-center gap-4">
           {isLoggedIn ? (
             <>

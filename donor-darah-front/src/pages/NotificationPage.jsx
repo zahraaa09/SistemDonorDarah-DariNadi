@@ -73,74 +73,17 @@ const formatRelativeTime = (value) => {
         });
     }, []);
 
-    const renderActionButton = (notification) => {
-        if (notification.type === "DARURAT") {
-        return (
-            <div className="flex flex-wrap items-center gap-2">
-            <button
-                onClick={() => onNavigateToDetail(notification.request_id)}
-                className="bg-[#c80040] hover:bg-[#a80034] text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
-            >
-                Bantu Sekarang
-            </button>
-            <button
-                onClick={() => alert("Menampilkan detail rumah sakit yang membutuhkan bantuan...")}
-                className="bg-white hover:bg-gray-50 text-gray-700 text-xs font-bold px-4 py-2 rounded-lg border border-gray-200 transition-colors"
-            >
-                Lihat Lokasi
-            </button>
-            </div>
-        );
-        }
-
-        if (notification.type === "SUKSES") {
-        return (
-            <button
-            onClick={() => alert("Menampilkan ringkasan hasil notifikasi sukses...")}
-            className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
-            >
-            Lihat Detail
-            </button>
-        );
-        }
-
-        if (notification.type === "PENGINGAT") {
-        return (
-            <button
-            onClick={() => alert("Mengarahkan ke pengingat donor berikutnya...")}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors"
-            >
-            Atur Jadwal
-            </button>
-        );
-        }
-
-        if (notification.type === "INFORMASI") {
-        return (
-            <button
-            onClick={() => alert("Membuka informasi terbaru untuk Anda...")}
-            className="text-xs font-bold text-red-700 hover:underline bg-transparent border-none cursor-pointer p-0"
-            >
-            Baca Selengkapnya
-            </button>
-        );
-        }
-
-        return null;
-    };
-
     return (
-        <div className="max-w-4xl mx-auto px-6 py-10 font-sans min-h-screen">
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-8 gap-4">
+        <div className="w-full px-30 py-10 font-sans min-h-screen">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
             <div>
             <button
                 onClick={onBack}
                 className="text-xs font-bold text-gray-400 hover:text-gray-700 bg-transparent border-none cursor-pointer mb-2 flex items-center gap-1"
             >
-                ← Kembali ke Halaman Sebelumnya
+                ← Kembali 
             </button>
             <h1 className="text-3xl font-black text-gray-900 tracking-tight">Notifikasi</h1>
-            <p className="text-sm text-gray-500 mt-1">Notifikasi ini merekam aktivitas Anda dengan gaya timeline ringkas, tanpa status baca.</p>
             </div>
         </div>
 
@@ -158,42 +101,15 @@ const formatRelativeTime = (value) => {
             </div>
         ) : (
             <>
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                <div>
-                <p className="text-sm text-gray-500">Notifikasi ini merekam aktivitas penting Anda secara ringkas, mirip riwayat, tetapi dengan tanda khusus untuk setiap aksi.</p>
-                </div>
-                <button
-                onClick={async () => {
-                    const userId = localStorage.getItem("user_id");
-                    if (!userId) {
-                    setError("Silakan login ulang untuk menggunakan fitur ini.");
-                    return;
-                    }
-                    setLoading(true);
-                    setError(null);
-                    try {
-                    await api.post("/notifications/mark-all-read", null, { params: { user_id: userId } });
-                    const res = await api.get(`/notifications/user/${userId}`);
-                    setNotifications(res.data || []);
-                    } catch (err) {
-                    console.error("Gagal menandai semua notifikasi dibaca:", err);
-                    setError("Gagal menandai semua notifikasi dibaca. Silakan coba lagi.");
-                    } finally {
-                    setLoading(false);
-                    }
-                }}
-                className="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-bold text-white transition hover:bg-slate-800"
-                >
-                Tandai semua dibaca
-                </button>
-            </div>
+            {/* Spacer ini menggantikan ruang yang dihapus agar layout tidak bergeser */}
+<div className="mb-6 h-4"></div>
             <div className="space-y-4">
                 {notifications.map((n) => {
                 const styles = typeStyles[n.type] || typeStyles.INFORMASI;
                 return (
                     <div
                     key={n.id}
-                    className={`rounded-2xl border ${styles.border} p-5 shadow-sm transition-shadow bg-white hover:shadow-md`}
+                    className={`rounded-2xl border ${styles.border} p-5 shadow-sm transition-shadow bg-white`}
                     >
                     <div className="grid gap-4 md:grid-cols-[auto_1fr_auto] md:items-start">
                         <div className={`flex items-center justify-center w-11 h-11 rounded-full ${styles.iconBg}`}>
@@ -212,7 +128,6 @@ const formatRelativeTime = (value) => {
                         <span className="text-[10px] uppercase tracking-[0.2em] text-gray-400 font-black">
                             {formatRelativeTime(n.created_at)}
                         </span>
-                        {renderActionButton(n)}
                         </div>
                     </div>
                     </div>

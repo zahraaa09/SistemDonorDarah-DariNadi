@@ -47,7 +47,7 @@ export default function Sidebar({ active, setActive, onLogout }) {
   ];
 
   return (
-    <aside className="w-64 flex-shrink-0 bg-gray-100 border-r border-gray-200 flex flex-col h-full sticky top-0">
+    <aside className="w-64 flex-shrink-0 bg-gray-100 border-r border-gray-200 flex flex-col h-[calc(100vh-48px)] sticky top-0">
       <div className="flex-1 flex flex-col overflow-hidden">
         <div className="p-5 bg-white border-b border-gray-200">
           <div className="flex flex-col items-center text-center">
@@ -65,7 +65,7 @@ export default function Sidebar({ active, setActive, onLogout }) {
         </div>
 
         <div className="p-4 bg-white border-b border-gray-200">
-          <div className="text-xs font-semibold text-gray-500 tracking-widest uppercase mb-2">Status Mandat</div>
+          <div className="text-xs font-semibold text-gray-500 tracking-widest uppercase mb-2">Status</div>
           <div className="flex items-center justify-between border-2 border-[#c80040] rounded-lg px-3 py-2.5">
             <span className={`font-extrabold text-sm tracking-wide ${profile.is_available ? "text-emerald-700" : "text-gray-500"}`}>
               {profile.is_available ? "AVAILABLE" : "OFFLINE"}

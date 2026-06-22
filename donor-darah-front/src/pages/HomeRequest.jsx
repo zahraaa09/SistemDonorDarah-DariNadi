@@ -122,13 +122,6 @@ export default function HomeRequest({ onNavigate }) {
           </select>
         </div>
 
-        <button 
-          type="button"
-          onClick={() => setVisibleCount(6)} // Reset count view saat filter baru ditekan
-          className="w-full md:w-auto bg-[#c80040] hover:bg-[#a80034] text-white font-black text-xs px-6 py-3 rounded-xl border-none cursor-pointer tracking-wide transition-colors"
-        >
-          Terapkan Filter
-        </button>
       </div>
 
       <h2 className="text-2xl font-black text-gray-900 mb-6 tracking-tight">Daftar Permintaan</h2>
@@ -163,10 +156,7 @@ export default function HomeRequest({ onNavigate }) {
                 {displayedOwnRequests.map((r) => {
                   const urgency = getUrgencyStatus(r.urgency_level);
                   return (
-                    <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-[#f9dadb] p-5 shadow-sm flex flex-col justify-between gap-6 hover:border-[#f3b0b8] transition-all relative ring-1 ring-[#f3b0b8]/30">
-                      <div className="absolute top-4 right-4 text-[11px] font-black uppercase tracking-wider text-[#c80040] bg-[#fee2e6] px-2.5 py-1 rounded-full">
-                        Saya
-                      </div>
+                    <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-[#f9dadb] p-5 shadow-sm flex flex-col justify-between gap-6 relative ring-1 ring-[#f3b0b8]/30">
                       <div className="flex items-start justify-between">
                         <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm/5 ${bloodBg[r.blood_type] || "bg-red-50 text-red-700"}`}>
                           {r.blood_type}
@@ -184,7 +174,7 @@ export default function HomeRequest({ onNavigate }) {
                           <span className="truncate">{r.hospital?.name || r.hospital_name || "Rumah Sakit Umum Daerah"}</span>
                         </div>
                       </div>
-                      <div className="flex gap-2 w-full mt-2">
+                      <div className="flex flex-col gap-2 w-full mt-2">
                         <a
                           href={`https://wa.me/${(r.contact_phone || "0").replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
                           target="_blank"
@@ -211,7 +201,7 @@ export default function HomeRequest({ onNavigate }) {
             {displayedOtherRequests.map((r) => {
               const urgency = getUrgencyStatus(r.urgency_level);
               return (
-                <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col justify-between gap-6 hover:border-gray-200 transition-all relative">
+                <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col justify-between gap-6 relative">
                   <div className="flex items-start justify-between">
                     <div className={`w-14 h-14 rounded-2xl flex items-center justify-center font-black text-xl shadow-sm/5 ${bloodBg[r.blood_type] || "bg-red-50 text-red-700"}`}>
                       {r.blood_type}
@@ -229,7 +219,7 @@ export default function HomeRequest({ onNavigate }) {
                       <span className="truncate">{r.hospital?.name || r.hospital_name || "Rumah Sakit Umum Daerah"}</span>
                     </div>
                   </div>
-                  <div className="flex gap-2 w-full mt-2">
+                  <div className="flex flex-col gap-2 w-full mt-2">
                     <a
                       href={`https://wa.me/${(r.contact_phone || "0").replace(/[^0-9]/g, "").replace(/^0/, "62")}`}
                       target="_blank"

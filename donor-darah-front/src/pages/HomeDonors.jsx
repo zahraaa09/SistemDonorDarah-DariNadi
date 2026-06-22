@@ -165,9 +165,6 @@ const handleSendDirectRequest = async (donor) => {
           />
         </div>
 
-        <button className="w-full md:w-auto bg-[#c80040] hover:bg-[#a80034] text-white font-black text-xs px-6 py-3 rounded-xl transition-all border-none cursor-pointer tracking-wide">
-          Terapkan Filter
-        </button>
       </div>
 
       <h2 className="text-2xl font-black text-gray-900 mb-6 tracking-tight">Daftar Pendonor</h2>
@@ -179,7 +176,7 @@ const handleSendDirectRequest = async (donor) => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {displayedDonors.map((d, index) => (
-            <div key={d.id || index} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm border-l-4 border-l-[#c80040] flex flex-col justify-between gap-5 hover:border-gray-200 transition-all">
+            <div key={d.id || index} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm border-l-4 border-l-[#c80040] flex flex-col justify-between gap-5">
               <div className="flex items-center gap-3">
                 <div className={`w-12 h-12 rounded-full ${avatarBgs[index % avatarBgs.length]} flex items-center justify-center text-lg font-bold border border-white shadow-sm flex-shrink-0 overflow-hidden`}>
                   <svg className="w-8 h-8 text-gray-600 mt-2" fill="currentColor" viewBox="0 0 24 24">
@@ -211,7 +208,7 @@ const handleSendDirectRequest = async (donor) => {
                   target="_blank" rel="noopener noreferrer"
                   className="w-full py-2 rounded-xl text-xs font-bold bg-white border border-gray-200 text-gray-600 hover:bg-gray-50 hover:text-gray-900 transition-all flex items-center justify-center gap-2 text-center decoration-none shadow-sm/5"
                 >
-                  <SendIcon /> <span>Hubungi via Chat</span>
+                  <span>Hubungi via Chat</span>
                 </a>
 
                 {(() => {
@@ -240,7 +237,6 @@ const handleSendDirectRequest = async (donor) => {
                           : "bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer"
                       } ${requestingId === d.id ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
-                      <RequestBloodIcon /> 
                       <span>
                         {requestingId === d.id
                           ? "Mengirim..."

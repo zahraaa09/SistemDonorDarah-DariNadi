@@ -45,10 +45,10 @@ export default function SettingsPage() {
             name: res.data.name || "Zahra Aulia Putri",
             email: res.data.email || "naabilasalsabiilaa@gmail.com",
             phone: res.data.phone || "+62 812-3456-7890",
-            dob: res.data.dob || "05/20/1985",
-            gender: res.data.gender || "Perempuan",
+            dob: res.data.dob || "01/01/2005",
+            gender: res.data.gender || "Laki-laki",
             weight: res.data.weight || "50",
-            address: res.data.address || "Jl. Daya, Makassar",
+            address: res.data.address || "Isi alamat anda",
             email_notify: res.data.email_notify !== undefined ? res.data.email_notify : true,
             wa_notify: res.data.wa_notify !== undefined ? res.data.wa_notify : false,
             public_profile: res.data.public_profile !== undefined ? res.data.public_profile : true

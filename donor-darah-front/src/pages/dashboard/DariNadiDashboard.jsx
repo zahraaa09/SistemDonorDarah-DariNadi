@@ -45,7 +45,7 @@ export default function DariNadiDashboard({ onNavigate }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="h-screen bg-slate-50 flex flex-col overflow-hidden">
       <Navbar 
         activeTab={publicTab} 
         setActiveTab={handleNavbarNavigation} 

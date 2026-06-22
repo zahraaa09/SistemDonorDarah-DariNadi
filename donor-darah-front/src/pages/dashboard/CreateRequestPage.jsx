@@ -74,7 +74,7 @@ useEffect(() => {
           onClick={onBack}
           className="text-sm font-semibold text-gray-500 hover:text-gray-800 bg-transparent border-none cursor-pointer mb-2 flex items-center gap-1"
         >
-          ← Kembali ke Permintaan Saya
+          ← Kembali 
         </button>
         <h2 className="text-2xl font-black text-gray-900">Buat Permintaan Darah</h2>
         <p className="text-xs text-gray-400 mt-1">Isi detail di bawah ini untuk mengajukan permintaan darah melalui jaringan DariNadi.</p>
@@ -183,7 +183,7 @@ useEffect(() => {
         <div className="space-y-4">
           <div className="bg-gray-50 rounded-xl border border-gray-200 p-4">
             <h4 className="text-xs font-extrabold text-gray-800 uppercase tracking-wider mb-3 flex items-center gap-1.5">
-              📊 Pemeriksaan Stok Real-Time
+              Pemeriksaan Stok Real-Time
             </h4>
             <div className="space-y-3">
               <div>
@@ -215,7 +215,7 @@ useEffect(() => {
           </div>
 
           <div className="bg-slate-100 rounded-xl border border-gray-200 p-8 text-center text-xs font-bold text-gray-400 flex flex-col items-center justify-center gap-2">
-            📍 Mencari Rumah Sakit terdekat...
+            Mencari Rumah Sakit terdekat...
           </div>
         </div>
 

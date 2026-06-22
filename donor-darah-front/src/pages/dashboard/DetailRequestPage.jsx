@@ -84,7 +84,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
         onClick={onBack} 
         className="text-sm font-bold text-gray-500 hover:text-gray-800 bg-transparent border-none cursor-pointer mb-6 flex items-center gap-1"
       >
-        ← Kembali ke Daftar
+        ← Kembali 
       </button>
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -204,7 +204,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
               rel="noreferrer"
               className="w-full bg-slate-100 hover:bg-gray-200 text-slate-700 font-bold py-3 rounded-xl text-sm transition-colors text-center block no-underline border-none"
             >
-              💬 Hubungi via WhatsApp
+              Hubungi via WhatsApp
             </a>
           </div>
 

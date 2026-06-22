@@ -13,44 +13,30 @@ export default function HistoryPage() {
   useEffect(() => {
     if (userId) {
       setLoading(true);
-      
-      Promise.all([
-        api.get(`/donor-requests/my-requests/${userId}`),
-        api.get(`/request-responses/my-responses/${userId}`)
-      ])
-        .then(([requestsRes, responsesRes]) => {
-          const normalizedRequests = (requestsRes.data || []).map((req) => ({
-            id: req.id,
-            type: "Permintaan",
-            blood: req.blood_type,
-            location: req.hospital?.name || req.hospital_name || "Rumah Sakit",
-            status: req.status === "pending" ? "Aktif" : "Selesai",
-            statusColor: req.status === "pending" ? "bg-amber-50 text-amber-700 border border-amber-100" : "bg-blue-50 text-blue-600 border border-blue-100",
-            icon: "🧬",
-            raw_date: req.created_at || ""
-          }));
-
-          const normalizedResponses = (responsesRes.data || []).map((res) => ({
-            id: res.id,
-            type: "Respon Donor",
-            blood: res.request?.blood_type || res.blood_type || "-",
-            location: res.request?.hospital?.name || "Rumah Sakit",
-            status: res.status === "pending" ? "Menunggu" : res.status === "accepted" ? "Selesai" : "Dibatalkan",
-            statusColor: res.status === "pending" ? "bg-amber-50 text-amber-700 border border-amber-100" : res.status === "accepted" ? "bg-blue-50 text-blue-600 border border-blue-100" : "bg-red-50 text-red-600 border border-red-100",
-            icon: "🩸",
-            raw_date: res.created_at || res.request?.created_at || ""
-          }));
-          const combined = [...normalizedRequests, ...normalizedResponses].sort((a, b) => {
-          const dateA = a.raw_date ? new Date(a.raw_date).getTime() : 0;
-          const dateB = b.raw_date ? new Date(b.raw_date).getTime() : 0;
-            return dateB - dateA || b.id - a.id;
-          });
+      api.get(`/donations/my-donations/${userId}`)
+        .then((res) => {
+          console.log("Debug Donations:", res.data);
           
-          setActivities(combined);
+          const normalizedDonations = (res.data || []).map((don) => ({
+            id: don.id,
+            type: "Donasi Darah",
+            blood: don.request?.blood_type || "-",
+            location: don.request?.hospital?.name || "Rumah Sakit",
+            status: don.status === "completed" ? "Selesai" : don.status,
+            statusColor: "bg-red-50 text-[#c80040] border border-red-100",
+            icon: "🩸",
+            raw_date: don.donation_date || new Date().toISOString()
+          }));
+          
+          const sorted = normalizedDonations.sort((a, b) => 
+            new Date(b.raw_date).getTime() - new Date(a.raw_date).getTime()
+          );
+          
+          setActivities(sorted);
           setLoading(false);
         })
         .catch((err) => {
-          console.error("Gagal menggabungkan riwayat aktivitas:", err);
+          console.error("Gagal memuat riwayat donasi:", err);
           setLoading(false);
         });
     }
@@ -66,8 +52,8 @@ export default function HistoryPage() {
     );
   });
 
-  const totalRequests = activities.filter((a) => a.type === "Permintaan").length;
-  const totalResponses = activities.filter((a) => a.type === "Respon Donor").length;
+  const totalRequests = 0;
+  const totalResponses = 0;
   const totalCompleted = activities.filter((a) => a.status === "Selesai").length;
 
   if (loading) {

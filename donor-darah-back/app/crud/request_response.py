@@ -26,11 +26,17 @@ def create_response(db: Session, response_data: RequestResponseCreate, user_id: 
     return db_response
 
 def get_my_responses(db: Session, user_id: int):
-    return db.query(RequestResponse).filter(RequestResponse.id_user == user_id).all()
-
+    return db.query(RequestResponse)\
+        .filter(RequestResponse.id_user == user_id)\
+        .order_by(RequestResponse.id.desc())\
+        .all()
+        
 def get_responses_by_request(db: Session, request_id: int):
-    return db.query(RequestResponse).filter(RequestResponse.id_request == request_id).all()
-
+    return db.query(RequestResponse)\
+        .filter(RequestResponse.id_request == request_id)\
+        .order_by(RequestResponse.id.desc())\
+        .all()
+        
 def update_response_status(db: Session, response_id: int, choice: str, current_user_id: int):
     db_response = db.query(RequestResponse).filter(RequestResponse.id == response_id).first()
     if not db_response:
@@ -42,6 +48,21 @@ def update_response_status(db: Session, response_id: int, choice: str, current_u
     
     if choice == "accept":
         db_response.status = "accepted"
+        donor_request.status = "closed"
+        
+        # Record donation in donations table
+        from app.models.donation import Donation
+        existing_donation = db.query(Donation).filter(
+            Donation.id_donor == db_response.id_user,
+            Donation.id_request == db_response.id_request
+        ).first()
+        if not existing_donation:
+            new_donation = Donation(
+                id_donor=db_response.id_user,
+                id_request=db_response.id_request,
+                status="completed"
+            )
+            db.add(new_donation)
     elif choice == "reject":
         db_response.status = "rejected"
     else:

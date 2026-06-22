@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, joinedload
+
 from app.database import get_db
 from app.schemas.donor_request import DonorRequestCreate, DonorRequestResponse, DirectRequestSchema, RespondRequestSchema
 from app.crud import donor_request as request_crud
@@ -54,10 +55,14 @@ def list_my_responses(user_id: int, db: Session = Depends(get_db)):
             "id_request": r.id_request,
             "id_user": r.id_user,
             "status": r.status,
+            # Untuk sinkronisasi HistoryPage (sorting & tampilkan tanggal)
+            # Jika kolom created_at tidak ada di RequestResponse, frontend tetap fallback.
+            "created_at": getattr(r, "created_at", None),
             "request": {
                 "id": req.id,
                 "blood_type": req.blood_type,
                 "status": req.status,
+                "created_at": getattr(req, "created_at", None),
                 "hospital": {
                     "name": req.hospital.name if req.hospital else "Rumah Sakit"
                 } if req.hospital else None
@@ -186,6 +191,20 @@ def respond_request(payload: RespondRequestSchema, db: Session = Depends(get_db)
         existing_resp.status = "accepted"
         
     req.status = "closed"
+
+    # Record donation in donations table
+    existing_donation = db.query(models.Donation).filter(
+        models.Donation.id_donor == payload.donor_id,
+        models.Donation.id_request == payload.request_id
+    ).first()
+    if not existing_donation:
+        new_donation = models.Donation(
+            id_donor=payload.donor_id,
+            id_request=payload.request_id,
+            status="completed"
+        )
+        db.add(new_donation)
+
     db.commit()
     return {"message": "Permintaan berhasil ditanggapi dan status diperbarui menjadi terpenuhi"}
 
@@ -209,7 +228,21 @@ def update_response_status(response_id: int, status: str, db: Session = Depends(
     if status == 'accepted':
         req = db.query(models.DonorRequest).filter(models.DonorRequest.id == resp.id_request).first()
         if req:
-            req.status = 'closed' 
+            req.status = 'closed'
+            
+            # Record donation in donations table
+            existing_donation = db.query(models.Donation).filter(
+                models.Donation.id_donor == resp.id_user,
+                models.Donation.id_request == resp.id_request
+            ).first()
+            if not existing_donation:
+                new_donation = models.Donation(
+                    id_donor=resp.id_user,
+                    id_request=resp.id_request,
+                    status="completed"
+                )
+                db.add(new_donation)
+
             try:
                 note_owner = NotificationCreate(
                     id_user=req.id_user,
