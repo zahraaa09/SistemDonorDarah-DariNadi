@@ -8,7 +8,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
   const [loading, setLoading] = useState(true);
   const [isResponding, setIsResponding] = useState(false);
   const currentUserId = localStorage.getItem("user_id");
-  const myBloodType = localStorage.getItem("user_blood_type") || "O-"; 
+  const myBloodType = localStorage.getItem("user_blood_type") || "O-";
 
   useEffect(() => {
     if (requestId) {
@@ -40,7 +40,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
       </div>
     );
   }
-  const promisedUnits = request.promised_quantity || 1; 
+  const promisedUnits = request.promised_quantity || 1;
   const percentage = Math.round((promisedUnits / request.quantity) * 100);
   const isMatch = myBloodType === request.blood_type;
   const matchPercentage = isMatch ? 90 : 30;
@@ -82,11 +82,11 @@ export default function DetailRequestPage({ requestId, onBack }) {
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 font-sans">
-      <button 
-        onClick={onBack} 
+      <button
+        onClick={onBack}
         className="text-sm font-bold text-gray-500 hover:text-gray-800 bg-transparent border-none cursor-pointer mb-6 flex items-center gap-1"
       >
-        ← Kembali 
+        ← Kembali
       </button>
 
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -104,7 +104,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
             Pasien membutuhkan {request.quantity} kantong darah untuk prosedur medis segera.
           </p>
         </div>
-        
+
         <div className="w-16 h-16 rounded-2xl bg-red-50 text-[#c80040] border border-red-100 flex flex-col items-center justify-center shadow-sm">
           <span className="text-xl font-black">{request.blood_type}</span>
           <span className="text-[9px] font-bold text-gray-400 uppercase tracking-tight">Gol Darah</span>
@@ -113,7 +113,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
           <h3 className="text-xs font-black uppercase text-gray-400 tracking-wider">Informasi Pasien</h3>
-          
+
           <div className="space-y-3">
             <div className="flex items-start gap-3">
               <span className="text-lg">👤</span>
@@ -142,7 +142,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
           {request.user && (
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-3">
               <h4 className="text-xs font-black uppercase text-gray-400 tracking-wider">Peminta Donor (Pengirim)</h4>
-              
+
               <div className="flex items-start gap-3">
                 <span className="text-lg">👤</span>
                 <div>
@@ -175,7 +175,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
             <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center animate-ping absolute"></div>
             <span className="text-2xl z-10">📍</span>
           </div>
-          
+
           <div className="p-4 bg-gray-50 border-t border-gray-100">
             <div className="text-sm font-black text-gray-900">🏥 {request.hospital?.name || "Rumah Sakit Mitra"}</div>
             <div className="text-xs text-gray-400 mt-0.5">{request.hospital?.address || "Lokasi Makassar Area"}</div>
@@ -184,25 +184,24 @@ export default function DetailRequestPage({ requestId, onBack }) {
 
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-gray-100 p-4 shadow-sm space-y-2">
-            <button 
-          onClick={handleTanggap}
-          disabled={isDisabled}
-          className={`w-full font-bold py-3 rounded-xl text-sm transition-all border-none shadow-sm flex items-center justify-center gap-2 ${
-            isDisabled 
-              ? "bg-gray-300 cursor-not-allowed text-gray-600" 
-              : "bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer"
-          }`}
-        >
-          {isOwner 
-            ? "Permintaan Anda" 
-            : !compatibility.isCompatible 
-              ? "Tidak Cocok" 
-              : "❤️ Tanggapi Permintaan"}
-        </button>
-            
-            <a 
-              href={`https://wa.me/${request.contact_phone}`} 
-              target="_blank" 
+            <button
+              onClick={handleTanggap}
+              disabled={isDisabled}
+              className={`w-full font-bold py-3 rounded-xl text-sm transition-all border-none shadow-sm flex items-center justify-center gap-2 ${isDisabled
+                ? "bg-gray-300 cursor-not-allowed text-gray-600"
+                : "bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer"
+                }`}
+            >
+              {isOwner
+                ? "Permintaan Anda"
+                : !compatibility.isCompatible
+                  ? "Tidak Cocok"
+                  : "Tanggapi Permintaan"}
+            </button>
+
+            <a
+              href={`https://wa.me/${request.contact_phone}`}
+              target="_blank"
               rel="noreferrer"
               className="w-full bg-slate-100 hover:bg-gray-200 text-slate-700 font-bold py-3 rounded-xl text-sm transition-colors text-center block no-underline border-none"
             >
@@ -219,7 +218,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
               </div>
               <div className="text-xs font-black text-[#c80040]">{percentage}%</div>
             </div>
-            
+
             <div className="w-full bg-gray-100 h-2 rounded-full overflow-hidden">
               <div className="bg-[#c80040] h-full transition-all duration-500" style={{ width: `${percentage}%` }} />
             </div>
@@ -232,7 +231,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
       </div>
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mt-6">
         <h3 className="text-xs font-black uppercase text-gray-400 tracking-wider mb-4">Analisis Kesesuaian</h3>
-        
+
         <div className="flex flex-col sm:flex-row items-center gap-6">
           <div className="relative w-20 h-20 flex items-center justify-center rounded-full border-4 border-gray-100">
             <div className="absolute inset-0 rounded-full border-4 border-t-[#c80040] border-r-[#c80040] rotate-45"></div>
@@ -241,12 +240,8 @@ export default function DetailRequestPage({ requestId, onBack }) {
 
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-2 text-xs font-bold text-gray-800">
-              <span className="text-green-500">✓</span> 
+              <span className="text-green-500">✓</span>
               <span>Kecocokan Golongan Darah: Golongan darah Anda ({myBloodType}) {isMatch ? "sangat cocok" : "kurang cocok"} untuk pasien ini.</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs font-bold text-gray-800">
-              <span className="text-green-500">✓</span> 
-              <span>Verifikasi Keamanan Jaringan: Data rumah sakit terdaftar sah di wilayah aglomerasi Mamminasata.</span>
             </div>
           </div>
         </div>

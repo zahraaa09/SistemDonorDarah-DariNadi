@@ -23,7 +23,7 @@ const RequestBloodIcon = () => (
 
 const avatarBgs = ["bg-amber-100", "bg-sky-100", "bg-orange-100", "bg-pink-100", "bg-emerald-100"];
 
-export default function HomeDonors({ onNavigate = () => {} }) {
+export default function HomeDonors({ onNavigate = () => { } }) {
   const [donors, setDonors] = useState([]);
   const [bloodFilter, setBloodFilter] = useState("Semua");
   const [radiusFilter, setRadiusFilter] = useState(25);
@@ -40,14 +40,13 @@ export default function HomeDonors({ onNavigate = () => {} }) {
           .map((u, index) => ({
             ...u,
             distance: u.distance || parseFloat((Math.random() * 8 + 0.5).toFixed(1)),
-            last_donor_date: u.last_donor_date || ["12 Jan 2026", "05 Feb 2025", "28 Nov 2025", "15 Jan 2026"][index % 4]
           }));
         setDonors(enrichedData);
       })
       .catch((err) => console.error("Gagal memuat daftar relawan:", err));
   }, []);
 
-const handleSendDirectRequest = async (donor) => {
+  const handleSendDirectRequest = async (donor) => {
     if (!currentUserId) {
       alert("Sila login terlebih dahulu!");
       return;
@@ -82,14 +81,14 @@ const handleSendDirectRequest = async (donor) => {
         if (!confirmAuto) return;
         const newReq = await api.post("/donor-requests/create", {
           id_user: parseInt(currentUserId),
-          id_hospital: 0, 
+          id_hospital: 0,
           patient_name: String(localStorage.getItem("user_name") || "Pasien"),
           blood_type: String(patientBloodType),
-          quantity: 1, 
+          quantity: 1,
           contact_phone: String(localStorage.getItem("user_phone") || "6289512275480"),
           status: "pending"
         });
-        
+
         activeRequestId = newReq.data.id;
         localStorage.setItem("active_request_id", activeRequestId);
       } catch (err) {
@@ -105,7 +104,7 @@ const handleSendDirectRequest = async (donor) => {
 
     try {
       setRequestingId(donor.id);
-      
+
       const payload = {
         id_user: parseInt(currentUserId),
         id_donor: parseInt(donor.id),
@@ -201,10 +200,6 @@ const handleSendDirectRequest = async (donor) => {
                   <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider block">Golongan Darah</span>
                   <span className="text-xl font-black text-[#c80040] mt-0.5 block">{d.blood_type || "O+"}</span>
                 </div>
-                <div>
-                  <span className="text-[9px] font-black text-gray-400 uppercase tracking-wider block text-right">Terakhir Donor</span>
-                  <span className="text-xs font-bold text-gray-700 mt-1 block text-right">{d.last_donor_date}</span>
-                </div>
               </div>
 
               <div className="flex flex-col gap-2 w-full">
@@ -222,7 +217,7 @@ const handleSendDirectRequest = async (donor) => {
                   const isSelf = parseInt(d.id) === parseInt(currentUserId);
 
                   if (isIncompatible) {
-                      console.log("DEBUG INCOMPATIBLE:", {
+                    console.log("DEBUG INCOMPATIBLE:", {
                       donorName: d.name,
                       donorBlood: `"${d.blood_type}"`,
                       patientBlood: `"${patientBloodType}"`,
@@ -234,22 +229,21 @@ const handleSendDirectRequest = async (donor) => {
                       onClick={() => !isSelf && !isIncompatible && handleSendDirectRequest(d)}
                       disabled={isIncompatible || isSelf || requestingId === d.id}
                       title={isSelf ? "Ini adalah akun Anda" : compatibility.reason}
-                      className={`w-full py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 border-none shadow-sm ${
-                        isSelf
-                          ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                          : isIncompatible
+                      className={`w-full py-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-2 border-none shadow-sm ${isSelf
+                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                        : isIncompatible
                           ? "bg-gray-300 cursor-not-allowed text-gray-600"
                           : "bg-[#c80040] hover:bg-[#a80034] text-white cursor-pointer"
-                      } ${requestingId === d.id ? "opacity-60 cursor-not-allowed" : ""}`}
+                        } ${requestingId === d.id ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
                       <span>
                         {requestingId === d.id
                           ? "Mengirim..."
                           : isSelf
-                          ? "Akun Anda"
-                          : isIncompatible
-                          ? "Tidak Cocok"
-                          : "Minta Donor"}
+                            ? "Akun Anda"
+                            : isIncompatible
+                              ? "Tidak Cocok"
+                              : "Minta Donor"}
                       </span>
                     </button>
                   );
@@ -268,7 +262,7 @@ const handleSendDirectRequest = async (donor) => {
                 Masih ada {filtered.length > visibleCount ? filtered.length - visibleCount : "120+"} pendonor terverifikasi di wilayah Anda.
               </p>
             </div>
-            <button 
+            <button
               onClick={() => filtered.length > visibleCount ? setVisibleCount((prev) => prev + 6) : setVisibleCount(5)}
               className="bg-white text-[#c80040] font-extrabold px-8 py-2.5 rounded-full text-xs transition-all border-none cursor-pointer shadow-md tracking-wide z-10"
             >
