@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../../services/api";
 import { isCompatible } from "../../utils/bloodTypeCompatibility";
+import { getUrgencyStatus } from "../../utils/urgencyStatus";
 
 export default function DetailRequestPage({ requestId, onBack }) {
   const [request, setRequest] = useState(null);
@@ -77,6 +78,7 @@ export default function DetailRequestPage({ requestId, onBack }) {
   const compatibility = isCompatible(myBloodType, request.blood_type);
   const isOwner = parseInt(request.id_user) === parseInt(currentUserId);
   const isDisabled = !compatibility.isCompatible || isOwner || request.status !== 'pending';
+  const urgency = getUrgencyStatus(request.urgency);
 
   return (
     <div className="max-w-5xl mx-auto px-4 py-6 font-sans">
@@ -90,8 +92,8 @@ export default function DetailRequestPage({ requestId, onBack }) {
       <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[10px] font-black px-2.5 py-1 rounded-md bg-red-100 text-[#c80040] tracking-wider uppercase">
-              Sangat Mendesak
+            <span className={`text-[10px] font-black px-2.5 py-1 rounded-md tracking-wider uppercase ${urgency.colorClass}`}>
+              {urgency.label}
             </span>
             <span className="text-xs text-gray-400">Diposting baru-baru ini</span>
           </div>

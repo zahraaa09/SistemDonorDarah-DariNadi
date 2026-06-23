@@ -133,7 +133,12 @@ const handleSendDirectRequest = async (donor) => {
     return matchBlood && matchRadius;
   });
 
-  const displayedDonors = filtered.slice(0, visibleCount);
+  const orderedDonors = [
+    ...filtered.filter((d) => parseInt(d.id) === parseInt(currentUserId)),
+    ...filtered.filter((d) => parseInt(d.id) !== parseInt(currentUserId))
+  ];
+
+  const displayedDonors = orderedDonors.slice(0, visibleCount);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-10 font-sans antialiased">

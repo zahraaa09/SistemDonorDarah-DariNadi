@@ -154,7 +154,7 @@ export default function HomeRequest({ onNavigate }) {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {displayedOwnRequests.map((r) => {
-                  const urgency = getUrgencyStatus(r.urgency_level);
+                  const urgency = getUrgencyStatus(r.urgency);
                   return (
                     <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-[#f9dadb] p-5 shadow-sm flex flex-col justify-between gap-6 relative ring-1 ring-[#f3b0b8]/30">
                       <div className="flex items-start justify-between">
@@ -199,7 +199,7 @@ export default function HomeRequest({ onNavigate }) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {displayedOtherRequests.map((r) => {
-              const urgency = getUrgencyStatus(r.urgency_level);
+              const urgency = getUrgencyStatus(r.urgency);
               return (
                 <div key={r.id || Math.random()} className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm flex flex-col justify-between gap-6 relative">
                   <div className="flex items-start justify-between">

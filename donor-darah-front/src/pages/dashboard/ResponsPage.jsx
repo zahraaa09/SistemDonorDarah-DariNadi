@@ -59,25 +59,25 @@ export default function ResponsPage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col gap-2 w-full md:w-48">
               {r.status === 'pending' && (
                 <>
-                  <button onClick={() => handleUpdateStatus(r.id, 'accepted')} className="bg-[#c80040] hover:bg-[#a80034] text-white px-5 py-2.5 rounded-xl text-xs font-black transition-all">
+                  <button onClick={() => handleUpdateStatus(r.id, 'accepted')} className="w-full bg-[#c80040] hover:bg-[#a80034] text-white px-5 py-2.5 rounded-xl text-xs font-black transition-all">
                     Terima Permintaan
                   </button>
-                  <button onClick={() => handleUpdateStatus(r.id, 'rejected')} className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 rounded-xl text-xs font-black transition-all">
+                  <button onClick={() => handleUpdateStatus(r.id, 'rejected')} className="w-full bg-gray-100 hover:bg-gray-200 text-gray-600 px-5 py-2.5 rounded-xl text-xs font-black transition-all">
                     Tolak
                   </button>
                 </>
               )}
 
               {r.status === 'fulfilled' && (
-                <span className="text-xs font-bold text-blue-600 px-4 py-2">Permintaan ini sudah selesai</span>
+                <span className="text-xs font-bold text-blue-600 px-4 py-2 text-center">Permintaan ini sudah selesai</span>
               )}
 
               <button
                 onClick={() => setSelectedId(r.id_request)}
-                className="border-2 border-gray-200 hover:border-gray-300 text-gray-600 px-5 py-2.5 rounded-xl text-xs font-black transition-all bg-white"
+                className="w-full border-2 border-gray-200 hover:border-gray-300 text-gray-600 px-5 py-2.5 rounded-xl text-xs font-black transition-all bg-white"
               >
                 Lihat Detail
               </button>
