@@ -102,7 +102,7 @@ export default function Login({ onNavigate, onLoginSuccess }) {
                   <label className="block text-xs font-bold text-gray-700">Kata Sandi</label>
                   <button
                     type="button"
-                    onClick={() => alert("Fitur reset sandi sedang dikembangkan.")}
+                    onClick={() => onNavigate("reset_password")}
                     className="text-[11px] font-bold text-[#c80040] hover:underline bg-transparent border-none cursor-pointer"
                   >
                     Lupa Sandi?

@@ -77,7 +77,10 @@ export default function DetailRequestPage({ requestId, onBack }) {
 
   const compatibility = isCompatible(myBloodType, request.blood_type);
   const isOwner = parseInt(request.id_user) === parseInt(currentUserId);
-  const isDisabled = !compatibility.isCompatible || isOwner || request.status !== 'pending';
+  const userResponse = request.responses?.find((resp) => parseInt(resp.id_user) === parseInt(currentUserId));
+  const hasRejectedSelfResponse = userResponse?.status === 'rejected';
+  const hasAcceptedSelfResponse = userResponse?.status === 'accepted';
+  const isDisabled = !compatibility.isCompatible || isOwner || request.status !== 'pending' || hasRejectedSelfResponse || hasAcceptedSelfResponse;
   const urgency = getUrgencyStatus(request.urgency);
 
   return (
@@ -194,9 +197,13 @@ export default function DetailRequestPage({ requestId, onBack }) {
             >
               {isOwner
                 ? "Permintaan Anda"
-                : !compatibility.isCompatible
-                  ? "Tidak Cocok"
-                  : "Tanggapi Permintaan"}
+                : hasRejectedSelfResponse
+                  ? "Sudah Ditolak"
+                  : hasAcceptedSelfResponse
+                    ? "Sudah Diterima"
+                    : !compatibility.isCompatible
+                      ? "Tidak Cocok"
+                      : "Tanggapi Permintaan"}
             </button>
 
             <a

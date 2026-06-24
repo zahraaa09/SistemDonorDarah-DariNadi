@@ -33,7 +33,7 @@ const SaveLifeIcon = () => (
   </div>
 );
 
-export default function HomePage({ initialTab = "Home", onNavigate }) {
+export default function HomePage({ initialTab = "Home", onNavigate, isLoggedIn }) {
   const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
@@ -79,20 +79,38 @@ export default function HomePage({ initialTab = "Home", onNavigate }) {
                 <p className="text-sm md:text-base text-gray-500 leading-relaxed max-w-xl">
                   Menghubungkan pendonor darah dengan pasien dalam situasi darurat. Platform kami memastikan respons cepat dan manajemen pasokan darah yang aman karena setiap detik yang sangat berharga.
                 </p>
-                <div className="flex items-center gap-4 pt-2">
-                  <button 
-                    onClick={() => setActiveTab("Requests")} 
-                    className="bg-[#c80040] hover:bg-[#a80034] text-white px-6 py-3.5 rounded-xl font-bold text-sm shadow-md shadow-red-900/10 transition-all flex items-center gap-2 border-none cursor-pointer"
-                  >
-                    Donor Sekarang
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab("Donors")} 
-                    className="bg-white hover:bg-slate-50 text-gray-800 border-2 border-gray-200 px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer"
-                  >
-                    Mencari Donor 
-                  </button>
-                </div>
+                <div className="flex items-center gap-4 pt-2">
+                  <button 
+                    onClick={() => {
+                      const logged = typeof isLoggedIn !== 'undefined'
+                        ? isLoggedIn
+                        : Boolean(localStorage.getItem('token') && localStorage.getItem('user_id'));
+                      if (logged) {
+                        setActiveTab("Requests");
+                      } else {
+                        onNavigate("register");
+                      }
+                    }}
+                    className="bg-[#c80040] hover:bg-[#a80034] text-white px-6 py-3.5 rounded-xl font-bold text-sm shadow-md shadow-red-900/10 transition-all flex items-center gap-2 border-none cursor-pointer"
+                  >
+                    Donor Sekarang
+                  </button>
+                  <button 
+                    onClick={() => {
+                      const logged = typeof isLoggedIn !== 'undefined'
+                        ? isLoggedIn
+                        : Boolean(localStorage.getItem('token') && localStorage.getItem('user_id'));
+                      if (logged) {
+                        setActiveTab("Donors");
+                      } else {
+                        onNavigate("login");
+                      }
+                    }}
+                    className="bg-white hover:bg-slate-50 text-gray-800 border-2 border-gray-200 px-6 py-3 rounded-xl font-bold text-sm transition-all flex items-center gap-2 cursor-pointer"
+                  >
+                    Mencari Donor
+                  </button>
+                </div>
               </div>
               <div className="lg:col-span-4 flex justify-center lg:justify-end">
                 <img 

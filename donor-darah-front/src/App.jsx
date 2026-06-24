@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import ResetPassword from "./pages/ResetPassword";
 import DariNadiDashboard from "./pages/dashboard/DariNadiDashboard";
 import NotificationPage from "./pages/NotificationPage";
 import DetailRequestPage from "./pages/dashboard/DetailRequestPage";
-import CreateRequestPage from "./pages/dashboard/CreateRequestPage"; // 1. Import Halaman Baru
+import CreateRequestPage from "./pages/dashboard/CreateRequestPage";
 import Navbar from "./components/Navbar"; 
 import api from "./services/api";
 
@@ -101,6 +102,7 @@ return (
         {page === "home" && <HomePage isLoggedIn={isLoggedIn} initialTab={homeInitialTab} onNavigate={handleNavigate} />}
         {page === "login" && <Login onNavigate={handleNavigate} onLoginSuccess={handleLoginSuccess} />}
         {page === "register" && <Register onNavigate={handleNavigate} />}
+        {page === "reset_password" && <ResetPassword onNavigate={handleNavigate} />}
         {page === "dashboard" && <DariNadiDashboard onNavigate={handleNavigate} />}
         {page === "create_request" && (
           <CreateRequestPage onBack={() => setPage("dashboard")} />

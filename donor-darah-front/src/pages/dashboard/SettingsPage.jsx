@@ -41,11 +41,24 @@ export default function SettingsPage() {
     if (userId) {
       api.get(`/master/users/${userId}`)
         .then((res) => {
+          const parseDob = (value) => {
+            if (!value) return "";
+            const parsed = new Date(value);
+            if (!Number.isNaN(parsed.getTime())) {
+              return parsed.toISOString().split("T")[0];
+            }
+            const match = String(value).match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+            if (match) {
+              return `${match[3]}-${match[1]}-${match[2]}`;
+            }
+            return "";
+          };
+          const dobValue = parseDob(res.data.dob);
           setFormData({
             name: res.data.name || "Zahra Aulia Putri",
             email: res.data.email || "naabilasalsabiilaa@gmail.com",
             phone: res.data.phone || "+62 812-3456-7890",
-            dob: res.data.dob || "01/01/2005",
+            dob: dobValue,
             gender: res.data.gender || "Laki-laki",
             weight: res.data.weight || "50",
             address: res.data.address || "Isi alamat anda",
@@ -78,7 +91,14 @@ export default function SettingsPage() {
 
     try {
       setSubmitting(true);
-      await api.patch(`/master/users/${userId}`, formData);
+      const payload = { ...formData };
+      if (payload.dob === "") {
+        delete payload.dob;
+      }
+      if (payload.weight === "") {
+        delete payload.weight;
+      }
+      await api.patch(`/master/users/${userId}`, payload);
       
       localStorage.setItem("user_name", formData.name);
       alert("Perubahan pengaturan akun Anda berhasil disimpan!");
@@ -146,10 +166,10 @@ export default function SettingsPage() {
             <div>
               <label className="text-[10px] font-black text-gray-400 uppercase tracking-wider mb-1.5 block">Tanggal Lahir</label>
               <input 
+                type="date"
                 name="dob"
                 value={formData.dob} 
                 onChange={handleChange}
-                placeholder="MM/DD/YYYY"
                 className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-xs text-gray-800 bg-gray-50/20 focus:border-[#c80040] outline-none transition-colors font-semibold" 
               />
             </div>

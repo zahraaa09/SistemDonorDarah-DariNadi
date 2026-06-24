@@ -31,10 +31,19 @@ export default function Register({ onNavigate }) {
 
   useEffect(() => {
     api.get("/master/locations")
-      .then((res) => setBackendLocations(res.data))
+      .then((res) => {
+        console.log("Lokasi loaded:", res.data);
+        // Ensure res.data is an array
+        const locations = Array.isArray(res.data) ? res.data : [];
+        setBackendLocations(locations);
+        if (locations.length === 0) {
+          console.warn("No locations returned from server");
+        }
+      })
       .catch((err) => {
-        console.error(err);
-        setErrorMsg("Gagal memuat wilayah lokasi dari server.");
+        console.error("Error loading locations:", err);
+        console.error("Error details:", err.response?.data || err.message);
+        setErrorMsg("Gagal memuat wilayah lokasi dari server. Pastikan backend berjalan.");
       });
   }, []);
 
