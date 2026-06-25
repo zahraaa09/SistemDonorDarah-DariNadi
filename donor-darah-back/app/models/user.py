@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from app.database import Base
 
@@ -20,6 +20,8 @@ class User(Base):
     email_notify = Column(Boolean, default=True)
     wa_notify = Column(Boolean, default=False)
     public_profile = Column(Boolean, default=True)
+    reset_password_token = Column(String, unique=True, nullable=True)
+    reset_password_expires_at = Column(DateTime, nullable=True)
 
     # Relasi
     location = relationship("Location", back_populates="users")

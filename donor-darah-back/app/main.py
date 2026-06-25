@@ -1,10 +1,19 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy import text
 from app.database import engine, Base
-import app.models 
+import app.models
 from app.routers import user, donor_request, request_response, donation, master, notification
 
 Base.metadata.create_all(bind=engine)
+
+with engine.connect() as conn:
+    conn.execute(text(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_token VARCHAR UNIQUE"
+    ))
+    conn.execute(text(
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS reset_password_expires_at TIMESTAMP"
+    ))
 
 app = FastAPI(
     title="API Sistem Donor Darah",

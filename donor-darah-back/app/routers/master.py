@@ -74,7 +74,18 @@ def remove_user(user_id: int, db: Session = Depends(get_db)):
 def update_user_settings(user_id: int, update_data: UserUpdate, db: Session = Depends(get_db)):
     """Update profil lengkap user termasuk is_available dari SettingsPage."""
     from app.crud import user as user_crud
-    updated = user_crud.update_user_profile(db=db, user_id=user_id, update_data=update_data.model_dump(exclude_none=True))
+    
+    # Ambil data yang dikirim (exclude None)
+    update_dict = update_data.model_dump(exclude_none=True)
+    
+    print(f"PATCH /master/users/{user_id}")
+    print(f"Update data: {update_dict}")
+    
+    if not update_dict:
+        raise HTTPException(status_code=400, detail="Tidak ada data yang dikirim untuk diupdate")
+    
+    updated = user_crud.update_user_profile(db=db, user_id=user_id, update_data=update_dict)
     if not updated:
         raise HTTPException(status_code=404, detail="User tidak ditemukan")
+    
     return updated

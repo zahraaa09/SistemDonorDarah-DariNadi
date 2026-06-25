@@ -78,7 +78,8 @@ def get_request_by_id(db: Session, request_id: int):
     return db.query(DonorRequest)\
                 .options(
                     joinedload(DonorRequest.hospital),
-                    joinedload(DonorRequest.user)
+                    joinedload(DonorRequest.user),
+                    joinedload(DonorRequest.responses).joinedload(RequestResponse.user)
                 )\
                 .filter(DonorRequest.id == request_id)\
                 .first()

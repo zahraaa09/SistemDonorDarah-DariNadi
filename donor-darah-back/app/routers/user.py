@@ -1,8 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import (
+    UserCreate,
+    UserResponse,
+    UserResetPasswordRequest,
+    UserResetPasswordConfirm,
+)
 from app.crud import user as user_crud
+from app.services.email_service import send_password_reset_email
 
 router = APIRouter(prefix="/users", tags=["Users / Authentication"])
 
@@ -16,16 +22,41 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(email: str, password: str, db: Session = Depends(get_db)):
     db_user = user_crud.get_user_by_email(db, email=email)
-    if not db_user:
+    if not db_user or not user_crud.verify_password(password, db_user.password):
         raise HTTPException(status_code=400, detail="Email atau password salah")
-    
+
     return {
-        "message": "Login berhasil", 
-        "user_id": db_user.id, 
+        "message": "Login berhasil",
+        "user_id": db_user.id,
         "name": db_user.name,
-        "blood_type": db_user.blood_type 
+        "blood_type": db_user.blood_type,
     }
-    
+
+@router.post("/reset-password-request")
+def reset_password_request(payload: UserResetPasswordRequest, db: Session = Depends(get_db)):
+    token = user_crud.create_password_reset_token(db, email=payload.email)
+    if not token:
+        raise HTTPException(status_code=404, detail="Email tidak terdaftar")
+
+    try:
+        send_password_reset_email(payload.email, token)
+    except Exception as err:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Gagal mengirim email reset password: {err}"
+        )
+
+    return {
+        "message": "Token reset password telah dikirim ke email Anda. Periksa inbox dan gunakan token untuk membuat sandi baru.",
+    }
+
+@router.post("/reset-password")
+def reset_password(payload: UserResetPasswordConfirm, db: Session = Depends(get_db)):
+    user, error = user_crud.reset_user_password(db, token=payload.token, new_password=payload.new_password)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
+    return {"message": "Kata sandi berhasil diperbarui. Silakan masuk kembali."}
+
 @router.put("/{user_id}/profile", response_model=UserResponse)
 def update_profile(user_id: int, name: str, phone: str, db: Session = Depends(get_db)):
     update_data = {"name": name, "phone": phone}

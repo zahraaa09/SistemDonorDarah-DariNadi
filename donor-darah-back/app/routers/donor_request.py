@@ -172,6 +172,9 @@ def respond_request(payload: RespondRequestSchema, db: Session = Depends(get_db)
     if not donor:
         raise HTTPException(status_code=404, detail="Pendonor tidak ditemukan")
 
+    if req.status != "pending":
+        raise HTTPException(status_code=400, detail="Permintaan sudah tidak aktif dan tidak dapat ditanggapi lagi.")
+
     if not is_blood_compatible(donor.blood_type, req.blood_type):
         raise HTTPException(status_code=400, detail=f"Golongan darah tidak cocok: {donor.blood_type} -> {req.blood_type}")
         
@@ -180,6 +183,9 @@ def respond_request(payload: RespondRequestSchema, db: Session = Depends(get_db)
         models.RequestResponse.id_user == payload.donor_id
     ).first()
     
+    if existing_resp and existing_resp.status == "rejected":
+        raise HTTPException(status_code=400, detail="Permintaan telah ditolak dan tidak dapat ditanggapi lagi.")
+
     if not existing_resp:
         new_resp = models.RequestResponse(
             id_request=payload.request_id,
