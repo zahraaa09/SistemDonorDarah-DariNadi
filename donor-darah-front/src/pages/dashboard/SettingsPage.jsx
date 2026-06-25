@@ -55,13 +55,13 @@ export default function SettingsPage() {
           };
           const dobValue = parseDob(res.data.dob);
           setFormData({
-            name: res.data.name || "Zahra Aulia Putri",
-            email: res.data.email || "naabilasalsabiilaa@gmail.com",
-            phone: res.data.phone || "+62 812-3456-7890",
+            name: res.data.name || "",
+            email: res.data.email || "",
+            phone: res.data.phone || "",
             dob: dobValue,
             gender: res.data.gender || "Laki-laki",
-            weight: res.data.weight || "50",
-            address: res.data.address || "Isi alamat anda",
+            weight: res.data.weight || "",
+            address: res.data.address || "",
             email_notify: res.data.email_notify !== undefined ? res.data.email_notify : true,
             wa_notify: res.data.wa_notify !== undefined ? res.data.wa_notify : false,
             public_profile: res.data.public_profile !== undefined ? res.data.public_profile : true

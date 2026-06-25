@@ -33,7 +33,6 @@ export default function Register({ onNavigate }) {
     api.get("/master/locations")
       .then((res) => {
         console.log("Lokasi loaded:", res.data);
-        // Ensure res.data is an array
         const locations = Array.isArray(res.data) ? res.data : [];
         setBackendLocations(locations);
         if (locations.length === 0) {

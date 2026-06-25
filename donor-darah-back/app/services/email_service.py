@@ -29,7 +29,7 @@ def send_password_reset_email(to_email: str, token: str):
     reset_link = f"{FRONTEND_URL}/reset_password?token={token}"
     message.set_content(
         f"Halo,\n\nUntuk mereset kata sandi Anda, silakan gunakan token berikut:\n\n{token}\n\n" \
-        f"Token ini berlaku selama 30 menit.\n\n" \
+        f"Token ini berlaku selama 5 menit.\n\n" \
         f"Jika aplikasi Anda mendukung tautan reset, Anda dapat mengklik atau menempel tautan berikut di browser:\n{reset_link}\n\n" \
         "Jika Anda tidak meminta reset sandi, abaikan email ini.\n\n" \
         "Salam,\nTim DariNadi"

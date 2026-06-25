@@ -45,7 +45,7 @@ def create_password_reset_token(db: Session, email: str):
 
     token = str(uuid.uuid4())
     db_user.reset_password_token = token
-    db_user.reset_password_expires_at = datetime.utcnow() + timedelta(minutes=30)
+    db_user.reset_password_expires_at = datetime.utcnow() + timedelta(minutes=5)
     db.commit()
     db.refresh(db_user)
     return token

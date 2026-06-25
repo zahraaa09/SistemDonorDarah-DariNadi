@@ -15,7 +15,6 @@ function App() {
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [homeInitialTab, setHomeInitialTab] = useState("Home");
   
-  // Tambahkan state untuk status login
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
@@ -31,16 +30,17 @@ function App() {
           localStorage.setItem("user_name", res.data.name);
         })
         .catch((err) => console.error("Gagal sinkronisasi data user:", err));
-if (page === "login" || page === "register") {
-        setPage("dashboard");
-      }
-    } else {
-      setIsLoggedIn(false); // Update status login
-      if (["dashboard", "notifications", "detail_request", "create_request"].includes(page)) {
-        setPage("login");
-      }
-    }
-  }, [page]);
+        
+    if (page === "login" || page === "register") {
+            setPage("dashboard");
+          }
+        } else {
+          setIsLoggedIn(false); 
+          if (["dashboard", "notifications", "detail_request", "create_request"].includes(page)) {
+            setPage("login");
+          }
+        }
+      }, [page]);
 
   const handleLoginSuccess = () => { setPage("dashboard"); };
   const handleNavigate = (targetPage) => {
@@ -98,7 +98,6 @@ if (page === "login" || page === "register") {
 return (
     <div className="font-sans antialiased min-h-screen bg-slate-50 text-slate-800">
       <main className="min-h-screen">
-        {/* Pastikan HomePage juga menerima status isLoggedIn jika di dalam HomePage ada Navbar */}
         {page === "home" && <HomePage isLoggedIn={isLoggedIn} initialTab={homeInitialTab} onNavigate={handleNavigate} />}
         {page === "login" && <Login onNavigate={handleNavigate} onLoginSuccess={handleLoginSuccess} />}
         {page === "register" && <Register onNavigate={handleNavigate} />}
@@ -109,7 +108,6 @@ return (
         )}
         {page === "notifications" && (
           <div className="min-h-screen bg-slate-50 flex flex-col">
-            {/* Kirim isLoggedIn sebagai props ke Navbar */}
             <Navbar isLoggedIn={isLoggedIn} onNavigate={handleNavigate} />
             <NotificationPage 
               onBack={handleBackToPrevious} 
@@ -120,7 +118,6 @@ return (
         
         {page === "detail_request" && (
           <div className="min-h-screen bg-slate-50 flex flex-col">
-            {/* Kirim isLoggedIn sebagai props ke Navbar */}
             <Navbar isLoggedIn={isLoggedIn} onNavigate={handleNavigate} />
             <DetailRequestPage requestId={selectedRequestId} onBack={() => setPage("notifications")} />
           </div>
